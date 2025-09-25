@@ -1,0 +1,39 @@
+============================================================
+BÁO CÁO TỔNG HỢP KẾT QUẢ MODEL - STROKE PREDICTION
+============================================================
+
+Ngày tạo: 2025-09-25 21:39:48
+Tổng số models: 2
+
+BẢNG TỔNG HỢP:
+----------------------------------------
+              Model       Member  Accuracy  Precision  Recall  F1-Score  ROC-AUC                  Timestamp
+Logistic Regression Thành viên A    0.5000     0.5682  0.4464    0.5000   0.5073 2025-09-25T21:39:38.638081
+      Random Forest Thành viên B    0.5100     0.5714  0.5000    0.5333   0.5114 2025-09-25T21:39:38.642595
+
+TOP MODELS:
+----------------------------------------
+Theo F1-Score:
+              Model       Member  F1-Score  Accuracy
+      Random Forest Thành viên B    0.5333    0.5100
+Logistic Regression Thành viên A    0.5000    0.5000
+
+Theo Accuracy:
+              Model       Member  Accuracy  F1-Score
+      Random Forest Thành viên B    0.5100    0.5333
+Logistic Regression Thành viên A    0.5000    0.5000
+
+CHI TIẾT TỪNG MODEL:
+----------------------------------------
+
+1. Logistic Regression - Thành viên A
+   Thời gian: 2025-09-25T21:39:38.638081
+   Metrics: Acc=0.5000, P=0.5682, R=0.4464, F1=0.5000
+   Parameters: {'C': 1.0, 'max_iter': 500}
+   Preprocessing: {'scaler': 'StandardScaler', 'smote': True}
+
+2. Random Forest - Thành viên B
+   Thời gian: 2025-09-25T21:39:38.642595
+   Metrics: Acc=0.5100, P=0.5714, R=0.5000, F1=0.5333
+   Parameters: {'n_estimators': 100, 'max_depth': 10}
+   Preprocessing: {'scaler': 'MinMaxScaler', 'smote': False}

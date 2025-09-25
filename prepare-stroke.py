@@ -58,7 +58,7 @@ def prepare_dataset(
     output_dir: str | None = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, ColumnTransformer, List[str], PrepArtifacts]:
     """
-    Trả về:
+    Return:
         X_train_df, X_test_df, y_train, y_test, preprocessor, feature_names, artifacts_paths
     """
     # 1) Load
@@ -74,7 +74,7 @@ def prepare_dataset(
     # Safety checks
     for col in [target_col] + numeric_cols + binary_cols + categorical_cols + drop_cols:
         if col not in df.columns and col not in drop_cols:
-            raise KeyError(f"Thiếu cột cần thiết: {col}")
+            raise KeyError(f"Missing col: {col}")
 
     # 3) Light cleaning trước khi vào sklearn pipeline
     df_clean = df.copy()
@@ -83,7 +83,7 @@ def prepare_dataset(
     if df_clean["bmi"].isna().any():
         df_clean["bmi"] = df_clean["bmi"].fillna(df_clean["bmi"].median())
 
-    # Cap outliers cho các numeric có đuôi dài
+    # Cap outliers
     if cap_outliers:
         for col in ["bmi", "avg_glucose_level"]:
             df_clean[col] = cap_outliers_iqr(df_clean[col])
@@ -141,7 +141,7 @@ def prepare_dataset(
         try:
             from imblearn.over_sampling import SMOTE
         except Exception as e:
-            raise RuntimeError("Bạn đã bật --smote nhưng chưa cài imbalanced-learn (pip install imbalanced-learn)") from e
+            raise RuntimeError("Error") from e
 
         sm = SMOTE(random_state=random_state)
         X_res, y_res = sm.fit_resample(X_train_df.values, y_train.values)
@@ -206,13 +206,13 @@ def prepare_dataset(
 # ------------------------ CLI entrypoint ------------------------- #
 def parse_args():
     p = argparse.ArgumentParser(description="Prepare Kaggle Stroke Prediction dataset")
-    p.add_argument("--input", required=True, help="Đường dẫn CSV gốc (healthcare-dataset-stroke-data.csv)")
-    p.add_argument("--output-dir", default=None, help="Thư mục lưu artifacts (tùy chọn)")
-    p.add_argument("--test-size", type=float, default=0.2, help="Tỷ lệ test (mặc định 0.2)")
-    p.add_argument("--random-state", type=int, default=42, help="Seed random (mặc định 42)")
-    p.add_argument("--scale", default="standard", choices=["standard", "minmax", "none"], help="Kiểu scale numeric")
-    p.add_argument("--cap-outliers", action="store_true", help="Bật cap outliers IQR cho bmi & avg_glucose_level")
-    p.add_argument("--smote", action="store_true", help="Bật SMOTE trên tập train (cần imblearn)")
+    p.add_argument("--input", required=True, help="data path (healthcare-dataset-stroke-data.csv)")
+    p.add_argument("--output-dir", default=None, help="output dir to save artifacts (preprocessor, transformed CSVs, meta).") 
+    p.add_argument("--test-size", type=float, default=0.2, help="test size (default 0.2)")
+    p.add_argument("--random-state", type=int, default=42, help="random seed (default 42)")
+    p.add_argument("--scale", default="standard", choices=["standard", "minmax", "none"], help="numeric scaling method")
+    p.add_argument("--cap-outliers", action="store_true", help="enable IQR outlier capping for bmi & avg_glucose_level")
+    p.add_argument("--smote", action="store_true", help="enable SMOTE on training set (requires imblearn)")
     return p.parse_args()
 
 

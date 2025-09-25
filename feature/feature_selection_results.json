@@ -1,0 +1,62 @@
+{
+  "top_features": [
+    "age",
+    "avg_glucose_level",
+    "hypertension",
+    "heart_disease",
+    "bmi",
+    "ever_married",
+    "work_type",
+    "smoking_status"
+  ],
+  "feature_scores": {
+    "correlation": {
+      "age": 0.24525734617097422,
+      "heart_disease": 0.13491399696869258,
+      "avg_glucose_level": 0.13194544082570953,
+      "hypertension": 0.12790382346648013,
+      "ever_married": 0.10833974165701099,
+      "bmi": 0.03610996321537832,
+      "work_type": 0.032316107575142555,
+      "smoking_status": 0.02812266061097711,
+      "Residence_type": 0.015457965477256719,
+      "gender": 0.00892886628878879
+    },
+    "mutual_info": {
+      "age": 0.034842207029933014,
+      "bmi": 0.011212928454852333,
+      "ever_married": 0.009264281583323264,
+      "hypertension": 0.009081562800335119,
+      "work_type": 0.007352297693741239,
+      "heart_disease": 0.0070216325089544895,
+      "avg_glucose_level": 0.00661323204186437,
+      "Residence_type": 0.003488999358817635,
+      "smoking_status": 0.002576781948075535,
+      "gender": 0.0013388478401965553
+    },
+    "rf_importance": {
+      "age": 0.38398252100594266,
+      "avg_glucose_level": 0.20267635466757927,
+      "bmi": 0.18441096352902,
+      "smoking_status": 0.04823855864980807,
+      "work_type": 0.04766243245508325,
+      "ever_married": 0.03675055221684984,
+      "hypertension": 0.029884333898110644,
+      "gender": 0.022711381506898994,
+      "Residence_type": 0.02232215927756851,
+      "heart_disease": 0.02136074279313875
+    },
+    "statistical": {
+      "age": 326.9165678586842,
+      "avg_glucose_level": 90.50386961378622,
+      "heart_disease": 87.98743631838275,
+      "hypertension": 75.44949772047296,
+      "ever_married": 20.622786836394678,
+      "bmi": 6.669167721121732,
+      "smoking_status": 3.369422743537742,
+      "work_type": 2.9259006936738268,
+      "Residence_type": 0.6007170234939083,
+      "gender": 0.23900076467294734
+    }
+  }
+}
