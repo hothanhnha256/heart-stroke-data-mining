@@ -1,0 +1,14 @@
+{
+  "input_csv": "C:\\Learning\\HK251\\DM\\heart-stroke\\data-raw\\healthcare-dataset-stroke-data.csv",
+  "output_dir": "C:\\Learning\\HK251\\DM\\heart-stroke\\data-pre",
+  "test_size": 0.2,
+  "random_state": 42,
+  "scale": "standard",
+  "cap_outliers": true,
+  "smote": true,
+  "n_train": 7778,
+  "n_test": 1022,
+  "pos_rate_train": 0.5,
+  "pos_rate_test": 0.04892367906066536,
+  "n_features": 21
+}
