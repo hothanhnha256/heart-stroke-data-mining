@@ -1,0 +1,87 @@
+================================================================================
+BÁO CÁO TỔNG HỢP KẾT QUẢ MODELS - STROKE PREDICTION
+================================================================================
+
+Ngày tạo: 2025-10-18 15:32:30
+Tổng số models: 4
+Test set size: 1022 samples
+Stroke cases: 50 (4.89%)
+
+================================================================================
+
+CHI TIẾT TỪNG MODEL:
+--------------------------------------------------------------------------------
+
+1. Logistic Regression
+   Accuracy:  0.7495
+   Precision: 0.1399
+   Recall:    0.8000
+   F1-Score:  0.2381
+   ROC-AUC:   0.8456
+
+   Confusion Matrix:
+   TN=726  FP=246 
+   FN=10   TP=40  
+
+2. Random Forest
+   Accuracy:  0.9266
+   Precision: 0.1795
+   Recall:    0.1400
+   F1-Score:  0.1573
+   ROC-AUC:   0.7615
+
+   Confusion Matrix:
+   TN=940  FP=32  
+   FN=43   TP=7   
+
+3. SVM (RBF)
+   Accuracy:  0.7945
+   Precision: 0.1040
+   Recall:    0.4200
+   F1-Score:  0.1667
+   ROC-AUC:   0.7648
+
+   Confusion Matrix:
+   TN=791  FP=181 
+   FN=29   TP=21  
+
+4. KNN (k=5)
+   Accuracy:  0.8415
+   Precision: 0.0942
+   Recall:    0.2600
+   F1-Score:  0.1383
+   ROC-AUC:   0.6202
+
+   Confusion Matrix:
+   TN=847  FP=125 
+   FN=37   TP=13  
+
+================================================================================
+RANKING MODELS:
+--------------------------------------------------------------------------------
+
+Theo F1-Score:
+   1. Logistic Regression: 0.2381
+   2. SVM (RBF): 0.1667
+   3. Random Forest: 0.1573
+   4. KNN (k=5): 0.1383
+
+Theo ROC-AUC:
+   1. Logistic Regression: 0.8456
+   2. SVM (RBF): 0.7648
+   3. Random Forest: 0.7615
+   4. KNN (k=5): 0.6202
+
+================================================================================
+KẾT LUẬN:
+--------------------------------------------------------------------------------
+
+🏆 Model tốt nhất (F1-Score): Logistic Regression (0.2381)
+🏆 Model tốt nhất (ROC-AUC): Logistic Regression (0.8456)
+
+Lưu ý:
+- Dataset có class imbalance nghiêm trọng (95% vs 5%)
+- F1-Score và ROC-AUC là metrics quan trọng hơn Accuracy
+- Recall cao quan trọng cho medical diagnosis (giảm False Negatives)
+
+================================================================================
