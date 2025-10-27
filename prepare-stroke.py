@@ -66,7 +66,7 @@ def prepare_dataset(
 
     # 2) Basic schema
     target_col = "stroke"
-    drop_cols = ["id"]  # id không dùng để train
+    drop_cols = ["id"]  
     numeric_cols = ["age", "avg_glucose_level", "bmi"]
     binary_cols = ["hypertension", "heart_disease"]
     categorical_cols = ["gender", "ever_married", "work_type", "Residence_type", "smoking_status"]
