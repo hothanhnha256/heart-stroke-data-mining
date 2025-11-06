@@ -1,0 +1,29 @@
+\section{Kết luận và Hướng phát triển}
+
+\subsection{Kết luận}
+
+Đề tài đã thực hiện thành công việc xây dựng và đánh giá hệ thống dự đoán nguy cơ đột quỵ dựa trên các mô hình Machine Learning với tập dữ liệu từ Kaggle.  
+Trong suốt quá trình thực hiện, nhóm đã triển khai đầy đủ các bước của quy trình khai phá dữ liệu, bao gồm: tiền xử lý, phân tích dữ liệu khám phá (EDA), xử lý mất cân bằng lớp bằng kỹ thuật SMOTE, huấn luyện bốn mô hình chính (Logistic Regression, Random Forest, Support Vector Machine, K-Nearest Neighbors) và đánh giá chi tiết bằng các chỉ số phù hợp với bài toán y sinh học như \textit{Recall}, \textit{F1-Score} và \textit{ROC-AUC}.
+
+Kết quả cho thấy:
+\begin{itemize}
+    \item \textbf{Logistic Regression} đạt Recall cao nhất (0.80) và ROC-AUC 0.85, thể hiện khả năng phát hiện ca dương tính tốt, phù hợp cho mục tiêu sàng lọc y tế.
+    \item \textbf{Random Forest} có Accuracy cao nhất (0.93) nhưng Recall thấp (0.14), cho thấy thiên lệch về lớp đa số.
+    \item \textbf{SVM} và \textbf{KNN} đạt mức hiệu năng trung bình, có khả năng phân biệt tương đối nhưng chưa tối ưu về cân bằng giữa Precision và Recall.
+\end{itemize}
+
+Từ đó có thể kết luận rằng, trong bối cảnh dữ liệu y tế mất cân bằng nghiêm trọng, các mô hình tuyến tính như Logistic Regression, kết hợp với kỹ thuật cân bằng dữ liệu, mang lại kết quả thực tiễn và ổn định hơn so với các mô hình phức tạp.  
+Ngoài ra, quá trình EDA cũng giúp xác định được các yếu tố ảnh hưởng mạnh nhất đến nguy cơ đột quỵ, bao gồm: \textit{tuổi}, \textit{bệnh tim}, \textit{tăng huyết áp}, và \textit{mức glucose trung bình}. Đây là những kết quả phù hợp với cơ sở y học hiện nay, khẳng định tính tin cậy của mô hình.
+
+\subsection{Hướng phát triển}
+
+Mặc dù đạt được kết quả khả quan, đề tài vẫn còn một số hạn chế và mở ra nhiều hướng phát triển trong tương lai:
+\begin{itemize}
+    \item \textbf{Mở rộng dữ liệu}: Bổ sung thêm dữ liệu thực tế từ các bệnh viện tại Việt Nam, bao gồm thông tin lâm sàng và lịch sử y tế dài hạn, nhằm cải thiện độ khái quát của mô hình.
+    \item \textbf{Tích hợp dữ liệu đa nguồn}: Kết hợp dữ liệu y học hình ảnh (CT, MRI) hoặc dữ liệu thời gian thực từ thiết bị đeo (wearable sensors) để mô hình hóa toàn diện hơn các yếu tố nguy cơ.
+    \item \textbf{Nâng cao mô hình}: Nghiên cứu các kỹ thuật tiên tiến hơn như \textit{Gradient Boosting} (XGBoost, LightGBM) hoặc \textit{Deep Learning} để cải thiện hiệu suất dự đoán và khả năng tự động học đặc trưng.
+    \item \textbf{Giải thích mô hình (Model Interpretability)}: Ứng dụng các phương pháp như SHAP hoặc LIME để cung cấp giải thích trực quan cho bác sĩ, giúp mô hình dễ được chấp nhận trong thực hành lâm sàng.
+    \item \textbf{Triển khai thực tế}: Xây dựng giao diện hoặc API để tích hợp vào hệ thống quản lý bệnh viện (HIS/EMR), giúp bác sĩ có thể sử dụng như một công cụ hỗ trợ ra quyết định (CDSS).
+\end{itemize}
+
+Tổng kết lại, đề tài đã đạt được mục tiêu đề ra trong phạm vi học thuật, đồng thời đặt nền móng cho các nghiên cứu ứng dụng trí tuệ nhân tạo vào lĩnh vực y học dự đoán – một hướng đi tiềm năng góp phần giảm gánh nặng bệnh tật và nâng cao chất lượng chăm sóc sức khỏe cộng đồng.

@@ -21,43 +21,36 @@ Dự án **Data Mining hoàn chỉnh** để dự đoán nguy cơ đột quỵ (
 
 ```
 heart-stroke/
-│
-├── 📊 DATA
-│   ├── data-raw/
-│   │   └── healthcare-dataset-stroke-data.csv    # Dataset gốc
-│   ├── data-pre/                                 # Dữ liệu đã preprocessing
-│   │   ├── train_preprocessed.csv               # Training (7,778 rows sau SMOTE)
-│   │   ├── test_preprocessed.csv                # Test (1,022 rows)
-│   │   ├── preprocessor.joblib                  # Sklearn pipeline
-│   │   ├── feature_names.txt                    # 21 features
-│   │   └── prep_meta.json                       # Metadata
-│   ├── eda/                                     # EDA visualizations
-│   └── feature/                                 # Feature selection results
-│
-├── 🔧 CORE SCRIPTS
-│   ├── prepare-stroke.py                        # Preprocessing pipeline ⭐
-│   ├── eda_analysis.py                          # Exploratory analysis
-│   ├── feature_selection.py                     # Multi-method selection
-│   └── model_consolidation.py                   # Results aggregation
-│
-├── 🤖 MODELS
-│   ├── implement.py                             # Baseline LogReg
-│   ├── model-A/                                 # Team member A
-│   │   ├── logistics_reg.py
-│   │   └── random_forest.py
-│   └── model-B/                                 # Team member B
-│       ├── svm.py
-│       └── svm-and-knn.ipynb
-│
-├── 📖 DOCUMENTATION
-│   ├── README.md                                # This file
-│   ├── REPORT.md                                # Detailed analysis report
-│   ├── REPORT_TEMPLATE.md                       # Report template
-│   └── .github/copilot-instructions.md          # AI coding guidelines
-│
-└── ⚙️ CONFIG
-    ├── requirements.txt                         # Python dependencies
-    └── .gitignore
+├── data-raw/
+│   └── healthcare-dataset-stroke-data.csv    # Dataset gốc (5,111 rows × 12 cols)
+├── data-pre/                                 # Dữ liệu đã preprocessing
+│   ├── train_preprocessed.csv               # Training set đã xử lý
+│   ├── test_preprocessed.csv                # Test set đã xử lý
+│   ├── preprocessor.joblib                  # Sklearn pipeline
+│   ├── feature_names.txt                    # Danh sách features
+│   └── prep_meta.json                       # Metadata
+├── eda/                                      # EDA visualizations
+│   └── eda_*.png                            # Charts và plots
+├── feature/                                  # Feature selection results
+│   ├── feature_*.png                        # Feature importance plots
+│   └── feature_selection_results.json       # Ranking results
+├── model-A/                                  # Models - Team A
+│   ├── logistics_reg.py                     # Logistic Regression
+│   └── random_forest.py                     # Random Forest
+├── model-B/                                  # Models - Team B
+│   ├── svm.py                               # Support Vector Machine
+│   └── svm-and-knn.ipynb                    # SVM + KNN notebook
+├── report/                                   # LaTeX academic report
+│   ├── main.tex                             # Main document
+│   ├── Section 2/ ... Section 8/            # Report chapters
+│   └── image/                               # Report images
+├── prepare-stroke.py                        # Main preprocessing pipeline
+├── implement.py                             # Simple model implementation
+├── eda_analysis.py                          # Exploratory Data Analysis
+├── feature_selection.py                     # Multi-method feature selection
+├── model_consolidation.py                   # Tổng hợp kết quả từ team
+├── README.md                                # Documentation (this file)
+└── requirements.txt                         # Dependencies
 ```
 
 ````
@@ -310,9 +303,93 @@ model_results_consolidated.json
 
 ---
 
-## 📊 **Dataset Schema**
+## 📄 Step 6: Generate Academic Report (LaTeX)
 
-### Columns Description
+### Report Structure
+
+```
+report/
+├── main.tex                    # Main LaTeX document
+├── division_of_work.tex        # Phân công công việc
+├── resources.tex               # Tài liệu tham khảo
+├── Section 2/
+│   └── index.tex              # Giới thiệu
+├── Section 3/
+│   └── index.tex              # Cơ sở lý thuyết
+├── Section 4/
+│   └── index.tex              # Khảo sát và phân tích dữ liệu (EDA)
+├── Section 5/
+│   └── index.tex              # Tiền xử lý dữ liệu
+├── Section 6/
+│   └── index.tex              # Xây dựng mô hình
+├── Section 7/
+│   └── index.tex              # Kết quả và đánh giá
+└── Section 8/
+    └── index.tex              # Kết luận
+```
+
+### Compile LaTeX Report
+
+**Windows (PowerShell):**
+
+```powershell
+cd report
+pdflatex -interaction=nonstopmode main.tex
+pdflatex -interaction=nonstopmode main.tex  # Chạy 2 lần để cập nhật TOC
+```
+
+**Ubuntu/Linux:**
+
+```bash
+cd report
+pdflatex -interaction=nonstopmode main.tex
+pdflatex -interaction=nonstopmode main.tex  # Chạy 2 lần để cập nhật TOC
+```
+
+**Notes:**
+
+- Flag `-interaction=nonstopmode`: Tự động bỏ qua errors và tiếp tục compile
+- Chạy 2 lần để cập nhật Table of Contents và cross-references
+- Output: `main.pdf` trong thư mục `report/`
+- Cần cài đặt MiKTeX (Windows) hoặc TeX Live (Linux/Mac)
+
+### Report Content
+
+- **Section 2**: Giới thiệu về bài toán dự đoán đột quỵ
+- **Section 3**: Cơ sở lý thuyết (Binary Classification, Metrics, SMOTE, Algorithms: LogReg, RF, SVM, KNN)
+- **Section 4**: EDA với Professional Theme visualizations
+- **Section 5**: Tiền xử lý dữ liệu (Missing values, Outliers, Scaling, SMOTE)
+- **Section 6**: Xây dựng 4 mô hình ML
+- **Section 7**: So sánh kết quả và đánh giá
+- **Section 8**: Kết luận và hướng phát triển
+
+### Troubleshooting LaTeX Compile
+
+**Compile timeout:**
+
+- Kiểm tra file paths trong `\input{}` commands
+- Đảm bảo tất cả images tồn tại trong `report/image/`
+- Tắt draft mode nếu đang bật
+
+**Missing packages:**
+
+```powershell
+# MiKTeX sẽ tự động cài đặt packages thiếu
+# Hoặc cài thủ công qua MiKTeX Console
+```
+
+**Permission errors:**
+
+```powershell
+# Đảm bảo không mở PDF đang compile
+# Xóa các file tạm: *.aux, *.log, *.toc
+cd report
+Remove-Item *.aux, *.log, *.toc, *.out
+```
+
+---
+
+## 📊 Dataset Information
 
 | Column              | Type    | Description               | Example Values                                           |
 | ------------------- | ------- | ------------------------- | -------------------------------------------------------- |

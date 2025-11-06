@@ -1,0 +1,649 @@
+\section{Cơ sở lý thuyết}
+
+\subsection{Tổng quan về bài toán phân loại nhị phân}
+
+\subsubsection{Định nghĩa bài toán}
+Bài toán phân loại nhị phân (Binary Classification) là một trong những bài toán cơ bản nhất trong học máy có giám sát, trong đó mục tiêu là phân loại các mẫu dữ liệu vào một trong hai lớp rời rạc. Trong dự án này, hai lớp được định nghĩa là:
+
+\begin{itemize}
+    \item \textbf{Lớp 0 (Negative)}: Bệnh nhân không bị đột quỵ (No Stroke)
+    \item \textbf{Lớp 1 (Positive)}: Bệnh nhân bị đột quỵ (Stroke)
+\end{itemize}
+
+Với dataset \textbf{Healthcare Stroke Data} gồm 5,110 bệnh nhân, bài toán có đặc điểm:
+\begin{equation}
+    \text{Tỷ lệ lớp} = \frac{N_{\text{negative}}}{N_{\text{positive}}} = \frac{4,861}{249} \approx 19.5:1
+\end{equation}
+
+Đây là một bài toán \textbf{class imbalance nghiêm trọng}, với 95.13\% mẫu thuộc lớp âm và chỉ 4.87\% mẫu thuộc lớp dương.
+
+\subsubsection{Thách thức của class imbalance}
+Sự mất cân bằng lớp dữ liệu tạo ra các thách thức đặc biệt:
+
+\begin{enumerate}
+    \item \textbf{Bias towards majority class}: Mô hình có xu hướng dự đoán tất cả mẫu thuộc lớp đa số để tối đa hóa accuracy.
+    
+    \item \textbf{Poor minority class detection}: Khả năng phát hiện lớp thiểu số (stroke cases) bị hạn chế nghiêm trọng.
+    
+    \item \textbf{Misleading accuracy}: Accuracy cao không đảm bảo hiệu suất tốt. Ví dụ: mô hình dự đoán tất cả là "No Stroke" vẫn đạt 95\% accuracy nhưng hoàn toàn vô dụng trong thực tế y tế.
+\end{enumerate}
+
+\subsubsection{Metrics đánh giá phù hợp}
+Với bài toán imbalanced, các metrics quan trọng là:
+
+\begin{equation}
+    \text{Precision} = \frac{TP}{TP + FP}
+\end{equation}
+
+\begin{equation}
+    \text{Recall (Sensitivity)} = \frac{TP}{TP + FN}
+\end{equation}
+
+\begin{equation}
+    \text{F1-Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{equation}
+
+\begin{equation}
+    \text{ROC-AUC} = \int_{0}^{1} \text{TPR}(FPR^{-1}(x)) \, dx
+\end{equation}
+
+Trong đó:
+\begin{itemize}
+    \item \textbf{TP} (True Positive): Số ca stroke được phát hiện đúng
+    \item \textbf{FP} (False Positive): Số ca không stroke bị dự đoán nhầm là stroke
+    \item \textbf{FN} (False Negative): Số ca stroke bị bỏ sót (nguy hiểm!)
+    \item \textbf{TN} (True Negative): Số ca không stroke được phát hiện đúng
+\end{itemize}
+
+Trong ngữ cảnh y tế, \textbf{False Negative} (bỏ sót ca stroke) nguy hiểm hơn \textbf{False Positive} (cảnh báo nhầm), do đó \textbf{Recall} được ưu tiên cao hơn \textbf{Precision}.
+
+%--------------------------------------------------
+\subsection{Các kỹ thuật tiền xử lý dữ liệu}
+
+\subsubsection{Xử lý giá trị thiếu (Missing Values)}
+
+\subsubsubsection{Phương pháp Imputation}
+Trong dataset, cột \texttt{bmi} có 201 giá trị thiếu (3.93\%). Các phương pháp imputation được sử dụng:
+
+\begin{enumerate}
+    \item \textbf{Median Imputation} (cho biến số):
+    \begin{equation}
+        x_{\text{missing}} = \text{median}(\{x_i | x_i \text{ không thiếu}\})
+    \end{equation}
+    
+    Ưu điểm: Robust với outliers, không bị ảnh hưởng bởi giá trị cực trị.
+    
+    \item \textbf{Mode Imputation} (cho biến phân loại):
+    \begin{equation}
+        x_{\text{missing}} = \text{mode}(\{x_i | x_i \text{ không thiếu}\})
+    \end{equation}
+    
+    Ưu điểm: Bảo toàn phân phối của biến categorical.
+\end{enumerate}
+
+
+\subsubsection{Xử lý outliers}
+
+\subsubsubsection{Phương pháp IQR (Interquartile Range)}
+Outliers được xử lý bằng IQR-based capping:
+
+\begin{equation}
+    Q_1 = \text{25th percentile}, \quad Q_3 = \text{75th percentile}
+\end{equation}
+
+\begin{equation}
+    IQR = Q_3 - Q_1
+\end{equation}
+
+\begin{equation}
+    \text{Lower bound} = Q_1 - 1.5 \times IQR
+\end{equation}
+
+\begin{equation}
+    \text{Upper bound} = Q_3 + 1.5 \times IQR
+\end{equation}
+
+Giá trị ngoài khoảng $[\text{Lower}, \text{Upper}]$ được cắt (clipping):
+
+\begin{equation}
+    x_{\text{capped}} = \begin{cases}
+        \text{Lower} & \text{if } x < \text{Lower} \\
+        \text{Upper} & \text{if } x > \text{Upper} \\
+        x & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+\textbf{Áp dụng cho:} \texttt{bmi} (max 97.6 → outlier) và \texttt{avg\_glucose\_level}.
+
+\subsubsection{Feature Scaling}
+
+\subsubsubsection{StandardScaler (Z-score Normalization)}
+Chuyển đổi features về phân phối chuẩn với mean = 0 và std = 1:
+
+\begin{equation}
+    x_{\text{scaled}} = \frac{x - \mu}{\sigma}
+\end{equation}
+
+trong đó:
+\begin{itemize}
+    \item $\mu = \text{mean}(x)$
+    \item $\sigma = \text{std}(x)$
+\end{itemize}
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item Phù hợp với Logistic Regression, SVM
+    \item Bảo toàn thông tin về outliers (sau khi capping)
+    \item Robust với các thuật toán gradient-based
+\end{itemize}
+
+\subsubsubsection{MinMaxScaler}
+Chuyển đổi features về khoảng [0, 1]:
+
+\begin{equation}
+    x_{\text{scaled}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item Bảo toàn zero entries trong sparse data
+    \item Phù hợp với neural networks
+\end{itemize}
+
+\subsubsection{Feature Encoding}
+
+\subsubsubsection{One-Hot Encoding}
+Chuyển đổi biến phân loại thành binary vectors:
+
+\begin{equation}
+    x \in \{\text{cat}_1, \text{cat}_2, \ldots, \text{cat}_n\} \rightarrow \mathbf{v} \in \{0,1\}^n
+\end{equation}
+
+\textbf{Ví dụ:} \texttt{gender} $\in$ \{Male, Female, Other\} $\rightarrow$ 3 binary columns:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Original} & \textbf{gender\_Male} & \textbf{gender\_Female} & \textbf{gender\_Other} \\
+\hline
+Male & 1 & 0 & 0 \\
+Female & 0 & 1 & 0 \\
+Other & 0 & 0 & 1 \\
+\hline
+\end{tabular}
+\caption{One-Hot Encoding cho biến gender}
+\end{table}
+
+%--------------------------------------------------
+\subsection{Kỹ thuật cân bằng dữ liệu}
+
+\subsubsection{SMOTE (Synthetic Minority Oversampling Technique)}
+
+\subsubsubsection{Nguyên lý hoạt động}
+
+Thuật toán \textbf{SMOTE (Synthetic Minority Over-sampling Technique)} tạo ra các mẫu tổng hợp (\textit{synthetic samples}) cho lớp thiểu số bằng cách nội suy giữa các mẫu hiện có. Ý tưởng chính là mở rộng không gian đặc trưng của lớp thiểu số thay vì chỉ sao chép lại các mẫu cũ.
+
+\begin{algorithm}[H]
+\caption{Thuật toán SMOTE}
+\begin{algorithmic}[1]
+\FOR{mỗi mẫu thiểu số $x_i$}
+    \STATE Tìm $k$ láng giềng gần nhất (nearest neighbors) trong lớp thiểu số
+    \STATE Chọn ngẫu nhiên một láng giềng $x_{\text{nn}}$
+    \STATE Sinh mẫu mới:
+    \begin{equation}
+        x_{\text{new}} = x_i + \lambda \cdot (x_{\text{nn}} - x_i)
+    \end{equation}
+    \STATE với $\lambda \sim \text{Uniform}(0, 1)$
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\textbf{Lưu ý quan trọng:}
+\begin{itemize}
+    \item SMOTE chỉ áp dụng trên \textbf{training set}
+    \item Test set giữ nguyên phân phối gốc (realistic evaluation)
+    \item Fit SMOTE sau khi split train/test để tránh data leakage
+\end{itemize}
+
+\subsubsection{Stratified Sampling}
+Đảm bảo tỷ lệ lớp được bảo toàn khi split train/test:
+
+\begin{equation}
+    \frac{N_{\text{positive}}^{\text{train}}}{N_{\text{total}}^{\text{train}}} = \frac{N_{\text{positive}}^{\text{test}}}{N_{\text{total}}^{\text{test}}} = \frac{N_{\text{positive}}}{N_{\text{total}}}
+\end{equation}
+
+%--------------------------------------------------
+\subsection{Các thuật toán Áp dụng}
+
+\subsubsection{Logistic Regression}
+
+\textbf{Khái niệm:}
+
+Logistic Regression (hồi quy Logistic) là một phương pháp thống kê và học máy phổ biến, được sử dụng chủ yếu trong các bài toán \textit{phân loại nhị phân} (binary classification). Mục tiêu của mô hình là ước lượng xác suất một quan sát thuộc về một trong hai lớp dựa trên các biến độc lập.  \\
+Khác với hồi quy tuyến tính (Linear Regression), Logistic Regression không dự đoán giá trị thực mà ánh xạ đầu ra thông qua \textbf{hàm sigmoid (logistic function)} để đảm bảo giá trị đầu ra nằm trong khoảng $(0,1)$, tương ứng với xác suất.\\
+
+\textbf{Nguyên lý toán học:}
+
+Hàm sigmoid là một hàm phi tuyến, có dạng:
+\begin{equation}
+    \sigma(z) = \frac{1}{1 + e^{-z}}
+\end{equation}
+trong đó:
+\begin{equation}
+    z = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \ldots + \beta_p x_p = \boldsymbol{\beta}^T \boldsymbol{x}
+\end{equation}
+là tổ hợp tuyến tính của các biến độc lập.\\
+
+\textbf{Đặc điểm của hàm sigmoid:}
+\begin{itemize}
+    \item Đầu vào $z \in (-\infty, +\infty)$.
+    \item Đầu ra $\sigma(z) \in (0, 1)$.
+    \item Có thể diễn giải trực tiếp như một xác suất — giá trị $\sigma(z)$ càng gần 1 thì khả năng mẫu thuộc lớp dương càng cao.
+\end{itemize}
+
+\textbf{Mô hình xác suất}
+
+Xác suất để biến phụ thuộc $Y \in \{0,1\}$ nhận giá trị 1 được xác định bởi:
+\begin{equation}
+    P(Y=1|\boldsymbol{x}) = \pi(\boldsymbol{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p)}}
+\end{equation}
+và tương ứng:
+\begin{equation}
+    P(Y=0|\boldsymbol{x}) = 1 - \pi(\boldsymbol{x})
+\end{equation}
+
+Để thuận tiện phân tích, Logistic Regression sử dụng phép biến đổi \textbf{logit} (log-odds):
+\begin{equation}
+    \text{logit}(\pi(\boldsymbol{x})) = \ln \left( \frac{\pi(\boldsymbol{x})}{1 - \pi(\boldsymbol{x})} \right) = \beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p
+\end{equation}
+
+Nhờ phép biến đổi này, mối quan hệ giữa các biến độc lập và log-odds trở nên tuyến tính, giúp việc ước lượng tham số $\boldsymbol{\beta}$ có thể thực hiện bằng các phương pháp tối ưu như \textit{Maximum Likelihood Estimation (MLE)}.
+
+\textbf{Quy trình huấn luyện và dự đoán:}
+
+Với một mẫu đầu vào $\boldsymbol{x}$, xác suất dự đoán thuộc lớp dương (ví dụ: \textit{bị đột quỵ}) là:
+\begin{equation}
+    P(y=1|\boldsymbol{x}) = \sigma(\boldsymbol{\beta}^T \boldsymbol{x})
+\end{equation}
+
+Dựa vào ngưỡng mặc định 0.5, mô hình đưa ra quyết định phân loại:
+\begin{equation}
+    \hat{y} = 
+    \begin{cases}
+        1, & \text{nếu } P(y=1|\boldsymbol{x}) \ge 0.5 \\
+        0, & \text{nếu } P(y=1|\boldsymbol{x}) < 0.5
+    \end{cases}
+\end{equation}
+
+\textbf{Hàm mất mát: Binary Cross-Entropy}
+
+Mô hình Logistic Regression được huấn luyện bằng cách tối thiểu hóa hàm mất mát dạng \textit{Binary Cross-Entropy (Log Loss)}:
+\begin{equation}
+    L(\boldsymbol{\beta}) = -\frac{1}{N} \sum_{i=1}^{N} \left[ y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i) \right]
+\end{equation}
+trong đó:
+\begin{itemize}
+    \item $N$: số mẫu huấn luyện
+    \item $y_i$: nhãn thực tế của mẫu thứ $i$
+    \item $\hat{y}_i = P(y_i=1|\boldsymbol{x}_i)$: xác suất dự đoán
+\end{itemize}
+
+\textbf{Tối ưu hóa: Gradient Descent}
+
+Các tham số $\boldsymbol{\beta}$ được cập nhật thông qua quy tắc Gradient Descent:
+\begin{equation}
+    \beta_j := \beta_j - \alpha \frac{\partial L}{\partial \beta_j}
+\end{equation}
+với hệ số học $\alpha$ (learning rate) và gradient:
+\begin{equation}
+    \frac{\partial L}{\partial \beta_j} = \frac{1}{N} \sum_{i=1}^{N} (\hat{y}_i - y_i) x_{ij}
+\end{equation}
+
+\textbf{Regularization:}
+
+Để tránh overfitting, Logistic Regression thường bổ sung thành phần \textit{Regularization} vào hàm mất mát:
+\begin{itemize}
+    \item \textbf{L2 Regularization (Ridge):}
+    \begin{equation}
+        L_{\text{ridge}}(\boldsymbol{\beta}) = L(\boldsymbol{\beta}) + \lambda \sum_{j=1}^{p} \beta_j^2
+    \end{equation}
+    \item \textbf{L1 Regularization (Lasso):}
+    \begin{equation}
+        L_{\text{lasso}}(\boldsymbol{\beta}) = L(\boldsymbol{\beta}) + \lambda \sum_{j=1}^{p} |\beta_j|
+    \end{equation}
+\end{itemize}
+trong đó $\lambda$ là hệ số điều chỉnh mức phạt (với $C = 1/\lambda$ trong \texttt{scikit-learn}).
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item Dễ hiểu, dễ triển khai, và kết quả có thể diễn giải rõ ràng
+    \item Không yêu cầu giả định phân phối chuẩn của biến độc lập
+    \item Tính toán nhanh, phù hợp với dữ liệu vừa và lớn
+    \item Có thể diễn giải trực tiếp trọng số $\beta_j$ dưới dạng tầm quan trọng của đặc trưng
+    \item Cho phép mở rộng sang bài toán đa lớp (One-vs-Rest, Multinomial)
+\end{itemize}
+
+\textbf{Hạn chế:}
+\begin{itemize}
+    \item Giả định mối quan hệ tuyến tính giữa log-odds và các biến độc lập
+    \item Nhạy cảm với dữ liệu mất cân bằng và hiện tượng đa cộng tuyến
+    \item Hiệu suất kém với dữ liệu phi tuyến hoặc phức tạp
+    \item Yêu cầu chuẩn hóa đặc trưng để mô hình hội tụ tốt
+\end{itemize}
+
+\textbf{Ứng dụng trong khai phá dữ liệu:}
+\begin{itemize}
+    \item Phân loại nhị phân: dự đoán nhãn cho các đối tượng dựa trên đặc trưng.
+    \item Phân tích rủi ro: ước lượng xác suất xảy ra sự kiện (ví dụ khách hàng vỡ nợ).
+    \item Là mô hình \textit{baseline} trong nhiều nghiên cứu, dùng để so sánh hiệu quả với các mô hình phi tuyến (Random Forest, SVM, Neural Network)
+\end{itemize}
+
+\subsubsection{Random Forest}
+
+\textbf{Khái niệm:}
+
+Random Forest là một thuật toán học máy thuộc nhóm \textit{ensemble learning}, trong đó nhiều mô hình yếu (\textit{weak learners}) — cụ thể là các cây quyết định (\textit{Decision Trees}) — được kết hợp lại để tạo thành một mô hình mạnh (\textit{strong learner}).  
+Ý tưởng chính là việc tổng hợp nhiều cây quyết định huấn luyện trên các tập dữ liệu ngẫu nhiên và tập con đặc trưng khác nhau sẽ giúp giảm phương sai (variance) của mô hình, hạn chế hiện tượng overfitting, đồng thời cải thiện hiệu năng dự đoán.
+
+\textbf{Random Forest được sử dụng rộng rãi trong nhiều lĩnh vực như:}
+\begin{itemize}
+    \item \textbf{Y tế:} dự đoán bệnh lý, phân loại hình ảnh y khoa.
+    \item \textbf{Tài chính:} đánh giá rủi ro tín dụng, phát hiện gian lận.
+    \item \textbf{Marketing:} phân khúc khách hàng, dự đoán hành vi mua hàng.
+    \item \textbf{Dữ liệu lớn:} huấn luyện song song, ổn định cao khi xử lý tập dữ liệu khổng lồ.
+\end{itemize}
+
+\textbf{Nguyên lý hoạt động:}
+
+\textbf{a. Cây quyết định (Decision Tree) làm nền tảng}
+\begin{itemize}
+    \item Với bài toán phân loại: cây quyết định dự đoán nhãn bằng cách đi theo các nút phân nhánh dựa trên thuộc tính, kết quả cuối cùng tại lá (leaf node) là một lớp (class)
+    \item Với bài toán hồi quy: kết quả tại lá là một giá trị trung bình của tập dữ liệu thuộc lá đó.
+\end{itemize}
+
+Mỗi node được chia theo tiêu chí chọn feature tối ưu, phổ biến nhất là:\\
+
+\textbf{Tiêu chí phân chia node – Gini Impurity:}
+
+Gini Impurity đo lường độ “không thuần khiết” (\textit{impurity}) của một node trong cây quyết định, được xác định như sau:
+
+\begin{equation}
+    \text{Gini}(D) = 1 - \sum_{k=1}^{K} p_k^2
+    \label{eq:gini}
+\end{equation}
+
+trong đó $p_k$ là tỷ lệ mẫu thuộc lớp $k$ tại node hiện tại.  
+Giá trị Gini càng nhỏ thì node càng “thuần khiết” — tức là các mẫu trong node chủ yếu thuộc về cùng một lớp.
+
+Mức giảm độ không thuần khiết khi phân chia node (Gini Gain) được tính bằng:
+
+\begin{equation}
+    \text{Gain}_{\text{Gini}} = 
+    \text{Gini}(D_{\text{parent}}) - 
+    \left( 
+    \frac{|D_{\text{left}}|}{|D|}\text{Gini}(D_{\text{left}}) + 
+    \frac{|D_{\text{right}}|}{|D|}\text{Gini}(D_{\text{right}})
+    \right)
+    \label{eq:gini_gain}
+\end{equation}
+
+Trong đó:
+\begin{itemize}
+    \item $D_{\text{parent}}$: tập dữ liệu tại node cha.
+    \item $D_{\text{left}}, D_{\text{right}}$: các tập dữ liệu con sau khi phân chia.
+    \item $|D|$: số lượng mẫu trong node hiện tại.
+\end{itemize}
+
+Node được chọn để tách sao cho giá trị $\text{Gain}_{\text{Gini}}$ là lớn nhất, giúp tăng độ thuần khiết của cây và cải thiện khả năng phân loại của mô hình.
+
+\textbf{b. Ngẫu nhiên hóa: Bootstrap Aggregation (Bagging) và Random Feature Selection}
+
+Random Forest được xây dựng dựa trên hai kỹ thuật ngẫu nhiên hóa chính:
+
+\begin{itemize}
+    \item \textbf{Bootstrap Aggregation (Bagging):}  
+    Từ tập dữ liệu gốc $D$, tạo ra nhiều tập con $D_1, D_2, \ldots, D_B$ bằng cách lấy mẫu có hoàn lại (\textit{sampling with replacement}).  
+    Mỗi tập $D_b$ sẽ được sử dụng để huấn luyện một cây quyết định độc lập.  
+    Cách tiếp cận này giúp giảm phương sai và tăng tính ổn định của mô hình tổng thể.
+
+    \textbf{1. Bootstrap Sampling:} 
+Tạo $B$ bootstrap samples từ tập huấn luyện gốc:
+
+\begin{equation}
+    D_b = \text{sample with replacement}(D_{\text{train}}), 
+    \quad b = 1, 2, \ldots, B
+\end{equation}
+
+    
+
+    \item \textbf{Random Feature Selection:}  
+    Tại mỗi nút (\textit{node}) trong quá trình xây dựng cây, chỉ xét một tập con ngẫu nhiên gồm $m$ thuộc tính trong tổng số $n_{\text{features}}$ để chọn ra đặc trưng tốt nhất cho việc phân chia.  
+    Điều này giúp giảm tương quan giữa các cây, tăng tính đa dạng và cải thiện độ tổng quát của mô hình.
+
+    \textbf{2. Feature Randomness:}
+Khi xây dựng mỗi node trong cây, chỉ xét một tập con ngẫu nhiên gồm $m$ features:
+
+\begin{equation}
+    m = \lfloor \sqrt{n_{\text{features}}} \rfloor 
+    \quad \text{(cho phân loại)}
+\end{equation}
+\end{itemize}
+
+\textbf{c. Quy trình huấn luyện và dự đoán:}
+
+\begin{enumerate}
+    \item \textbf{Bước 1:} Xây dựng $B$ cây quyết định độc lập, mỗi cây được huấn luyện trên một tập bootstrap $D_b$.
+    \item \textbf{Bước 2:} Mỗi cây được phát triển đầy đủ (không \textit{pruning}).
+    \item \textbf{Bước 3:} Kết hợp kết quả dự đoán từ tất cả các cây.
+\end{enumerate}
+
+\textbf{Phân loại (Classification):}
+\begin{equation}
+    \hat{y} = \text{mode}\{h_1(\mathbf{x}), h_2(\mathbf{x}), \ldots, h_B(\mathbf{x})\}
+\end{equation}
+
+\textbf{Xác suất dự đoán:}
+\begin{equation}
+    P(y=1|\mathbf{x}) = \frac{1}{B} \sum_{b=1}^{B} \mathbb{1}[h_b(\mathbf{x}) = 1]
+\end{equation}
+
+\textbf{Hồi quy (Regression):}
+\begin{equation}
+    \hat{y} = \frac{1}{B} \sum_{b=1}^{B} h_b(\mathbf{x})
+\end{equation}
+
+\textbf{d. Đánh giá mô hình — Out-of-Bag (OOB) Error:}
+
+Do sử dụng bootstrap sampling, khoảng 37\% mẫu không được dùng để huấn luyện mỗi cây (\textit{out-of-bag samples}).  
+Các mẫu này có thể dùng để ước lượng lỗi của mô hình mà không cần tập kiểm thử riêng biệt:
+\begin{equation}
+    \text{OOB Error} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\left[\hat{y}_i^{\text{OOB}} \neq y_i\right]
+\end{equation}
+
+\textbf{e. Độ quan trọng của đặc trưng (Feature Importance):}
+
+Mức độ quan trọng của từng đặc trưng được đo dựa trên mức giảm trung bình của chỉ số Gini:
+\begin{equation}
+    \text{Importance}(X_j) = \frac{1}{B} \sum_{b=1}^{B} \sum_{t \in \text{Tree}_b}
+    \Delta \text{Gini}_t \cdot \mathbb{1}[X_j \text{ được chọn tại node } t]
+\end{equation}
+Giá trị càng lớn chứng tỏ đặc trưng $X_j$ có ảnh hưởng lớn đến mô hình.
+
+\textbf{f. Các siêu tham số (Hyperparameters) quan trọng:}
+
+Hiệu năng của mô hình Random Forest phụ thuộc đáng kể vào việc lựa chọn các siêu tham số (hyperparameters).  
+Một số tham số quan trọng bao gồm:
+
+\begin{itemize}
+    \item \textbf{n\_estimators ($B$):} Số lượng cây quyết định trong rừng.  
+    Giá trị càng lớn, mô hình càng ổn định nhưng chi phí tính toán tăng. Thông thường $B$ nằm trong khoảng 100–500.
+
+    \item \textbf{max\_depth:} Độ sâu tối đa của mỗi cây.  
+    Nếu để mặc định (None), các cây có thể phát triển đến khi lá hoàn toàn thuần khiết, dễ dẫn đến overfitting.
+
+    \item \textbf{min\_samples\_split:} Số lượng mẫu tối thiểu cần có để tiếp tục phân chia một node.  
+    Giá trị cao giúp giảm overfitting nhưng có thể làm giảm độ chính xác.
+
+    \item \textbf{min\_samples\_leaf:} Số lượng mẫu tối thiểu tại mỗi lá.  
+    Thường được chọn từ 1 đến 5, giúp kiểm soát độ sâu của cây.
+
+    \item \textbf{max\_features:} Số lượng đặc trưng được xem xét tại mỗi lần chia node.  
+    Với bài toán phân loại thường lấy $m = \sqrt{n_{\text{features}}}$, còn với hồi quy là $m = \frac{n_{\text{features}}}{3}$.
+
+    \item \textbf{bootstrap:} Quy định việc sử dụng lấy mẫu có hoàn lại (bootstrap sampling).  
+    Thường đặt \texttt{True} để tận dụng lợi thế của phương pháp bagging.
+
+    \item \textbf{class\_weight:} Cân bằng trọng số giữa các lớp khi dữ liệu mất cân bằng (\textit{imbalanced dataset}).  
+    Có thể đặt là \texttt{balanced} để tự động điều chỉnh theo tần suất lớp.
+\end{itemize}
+
+\bigskip
+
+\textbf{2.3. Ưu điểm và hạn chế}
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item Hiệu năng cao trong nhiều bài toán thực tế, đặc biệt khi dữ liệu có nhiều đặc trưng và phi tuyến.
+    \item Giảm hiện tượng overfitting so với Decision Tree đơn lẻ nhờ cơ chế bagging và random feature selection.
+    \item Có khả năng đánh giá tầm quan trọng của đặc trưng (feature importance).
+    \item Hoạt động tốt trên dữ liệu có nhiễu hoặc thiếu giá trị.
+    \item Có thể song song hóa quá trình huấn luyện, phù hợp với dữ liệu lớn.
+\end{itemize}
+
+\textbf{Hạn chế:}
+\begin{itemize}
+    \item Kích thước mô hình lớn, tiêu tốn nhiều bộ nhớ và tài nguyên tính toán.
+    \item Khó diễn giải trực quan hơn Logistic Regression hoặc một cây quyết định đơn lẻ.
+    \item Thời gian huấn luyện và dự đoán có thể chậm khi số lượng cây lớn.
+\end{itemize}
+
+\bigskip
+
+\textbf{2.4. Ứng dụng trong Data Mining}
+
+Trong lĩnh vực khai phá dữ liệu (\textit{Data Mining}), Random Forest được xem là một trong những thuật toán mạnh mẽ và linh hoạt nhất nhờ khả năng tổng quát hóa cao và hiệu năng ổn định.  
+Một số ứng dụng tiêu biểu bao gồm:
+
+\begin{itemize}
+    \item \textbf{Phân loại (Classification):} Dự đoán nhãn đầu ra, ví dụ như dự đoán khách hàng rời bỏ dịch vụ (\textit{customer churn}) hoặc xác định bệnh nhân có nguy cơ đột quỵ.
+    \item \textbf{Hồi quy (Regression):} Dự đoán các giá trị liên tục như giá nhà, doanh thu, hoặc tỷ lệ tăng trưởng.
+    \item \textbf{Feature Selection:} Xác định và đánh giá độ quan trọng của các đặc trưng, từ đó rút gọn chiều dữ liệu.
+    \item \textbf{Phát hiện bất thường (Anomaly Detection):} Phát hiện các điểm dữ liệu hiếm hoặc bất thường trong các hệ thống giám sát hoặc gian lận tài chính.
+\end{itemize}
+
+Nhờ sự cân bằng giữa độ chính xác, khả năng mở rộng và tính ổn định, Random Forest thường được xem là một \textbf{mô hình baseline mạnh mẽ} để so sánh hiệu quả với các mô hình tiên tiến hơn như Gradient Boosting hoặc Neural Network.
+
+\subsubsection{Support Vector Machine (SVM)}
+
+Support Vector Machine (SVM) là một mô hình học máy có giám sát mạnh mẽ, chủ yếu được sử dụng cho các bài toán phân loại, nhưng cũng có thể mở rộng cho bài toán hồi quy. Mục tiêu chính của SVM là tìm ra một \textit{ranh giới quyết định} (\textit{decision boundary}) tối ưu để phân tách các lớp dữ liệu khác nhau.
+
+\textbf{Nguyên lý hoạt động: Tìm siêu phẳng phân tách tối ưu}
+
+\begin{itemize}
+    \item \textbf{Siêu phẳng (Hyperplane):} Trong không gian $n$ chiều, siêu phẳng là một mặt phẳng có số chiều $n - 1$. 
+    \begin{itemize}
+        \item Trong không gian 2D, siêu phẳng là một đường thẳng (1 chiều).
+        \item Trong không gian 3D, siêu phẳng là một mặt phẳng (2 chiều).
+    \end{itemize}
+
+    \item \textbf{Mục tiêu:} SVM không chỉ tìm được siêu phẳng phân tách các lớp dữ liệu, mà còn \textit{tối đa hóa khoảng cách} (\textit{margin}) giữa siêu phẳng và các điểm dữ liệu gần nhất của từng lớp.
+
+    \item \textbf{Margin và Support Vectors:} \textit{Margin} là khoảng cách từ siêu phẳng đến các điểm dữ liệu gần nhất. Các điểm nằm trên biên của margin được gọi là \textit{Support Vectors} — đây là các điểm dữ liệu “then chốt” xác định vị trí của siêu phẳng tối ưu. Khi các Support Vectors thay đổi, siêu phẳng cũng sẽ thay đổi tương ứng.
+\end{itemize}
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item Hiệu quả trong không gian nhiều chiều, đặc biệt khi số lượng đặc trưng lớn hơn số mẫu.
+    \item Khả năng tổng quát hóa cao nhờ nguyên lý “tối đa hóa margin”, giúp mô hình hoạt động tốt ngay cả với dữ liệu huấn luyện nhỏ.
+    \item Ổn định (Robust) với nhiễu do chỉ phụ thuộc vào một tập nhỏ các Support Vectors.
+\end{itemize}
+
+\textbf{Hạn chế:}
+\begin{itemize}
+    \item Khó lựa chọn hàm kernel và tinh chỉnh các tham số ($C$, $\gamma$), đòi hỏi kiến thức chuyên sâu và thử nghiệm nhiều lần.
+    \item Chi phí tính toán cao đối với bộ dữ liệu lớn, làm giảm tính khả thi khi triển khai thực tế.
+    \item Khó diễn giải, đặc biệt với các kernel phi tuyến — mô hình hoạt động như một “hộp đen” khó hiểu.
+    \item Hiệu suất giảm khi dữ liệu nhiễu hoặc mất cân bằng giữa các lớp.
+\end{itemize}
+
+
+\subsubsection{K-Nearest Neighbors (KNN)}
+
+\textbf{Cơ sở lý thuyết:}  
+K-Nearest Neighbors (KNN) là một thuật toán học máy giám sát (\textit{supervised learning}) đơn giản nhưng hiệu quả, có thể được sử dụng cho cả bài toán phân loại (\textit{classification}) và hồi quy (\textit{regression}). Nguyên lý của KNN dựa trên giả định rằng các điểm dữ liệu có đặc trưng tương tự nhau sẽ có nhãn hoặc giá trị đầu ra gần nhau.
+
+\textbf{Nguyên lý hoạt động:}
+\begin{itemize}
+    \item Tính khoảng cách giữa mẫu cần dự đoán và toàn bộ các điểm dữ liệu trong tập huấn luyện (thường dùng khoảng cách Euclidean, Manhattan hoặc Minkowski).
+    \item Chọn ra $K$ điểm dữ liệu gần nhất — gọi là \textit{neighbors}.
+    \item Dự đoán:
+    \begin{itemize}
+        \item \textbf{Phân loại:} Mẫu mới được gán vào lớp chiếm đa số trong $K$ láng giềng gần nhất.
+        \item \textbf{Hồi quy:} Giá trị dự đoán là trung bình hoặc trung vị của giá trị đầu ra của $K$ láng giềng gần nhất.
+    \end{itemize}
+\end{itemize}
+
+Công thức khoảng cách Euclidean phổ biến được sử dụng:
+\[
+d(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}
+\]
+Trong đó, $x$ và $y$ là hai điểm dữ liệu trong không gian đặc trưng $n$ chiều.
+
+\textbf{Lựa chọn tham số $K$:}
+\begin{itemize}
+    \item $K$ nhỏ (ví dụ $K=1$ hoặc $K=3$): Mô hình nhạy cảm với nhiễu, dễ bị \textit{overfitting}.
+    \item $K$ lớn (ví dụ $K=15$ hoặc $K=30$): Mô hình mượt hơn, ít nhiễu hơn nhưng có thể bị \textit{underfitting}.
+    \item Giá trị $K$ tối ưu thường được xác định thông qua phương pháp \textit{cross-validation}.
+\end{itemize}
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item Đơn giản, dễ hiểu, không cần giai đoạn huấn luyện phức tạp.
+    \item Linh hoạt: Áp dụng được cho cả phân loại và hồi quy.
+    \item Không yêu cầu giả định về phân bố dữ liệu.
+\end{itemize}
+
+\textbf{Hạn chế:}
+\begin{itemize}
+    \item Chi phí tính toán cao: Mỗi lần dự đoán phải tính khoảng cách với toàn bộ dữ liệu huấn luyện.
+    \item Nhạy cảm với dữ liệu nhiễu và thang đo — cần chuẩn hóa dữ liệu trước khi áp dụng.
+    \item Hiệu suất giảm khi dữ liệu có nhiều chiều (\textit{curse of dimensionality}).
+\end{itemize}
+
+\textbf{Ứng dụng:}
+\begin{itemize}
+    \item Nhận dạng chữ viết tay, nhận dạng khuôn mặt.
+    \item Phân loại văn bản, hệ thống gợi ý sản phẩm.
+    \item Dự đoán giá nhà hoặc nhiệt độ trong bài toán hồi quy.
+\end{itemize}
+
+% %--------------------------------------------------
+% \subsection{Tóm tắt chương}
+
+% Chương này đã trình bày các cơ sở lý thuyết quan trọng:
+
+% \begin{enumerate}
+%     \item \textbf{Bài toán phân loại imbalanced}: Challenges và metrics phù hợp (F1, Recall, ROC-AUC)
+    
+%     \item \textbf{Preprocessing techniques}:
+%     \begin{itemize}
+%         \item Missing value imputation (median/mode)
+%         \item IQR-based outlier capping
+%         \item Feature scaling (StandardScaler)
+%         \item One-Hot encoding (12 → 21 features)
+%     \end{itemize}
+    
+%     \item \textbf{SMOTE}: Balanced training set từ 4.82\% → 50\% positive class
+    
+%     \item \textbf{Algorithms}:
+%     \begin{itemize}
+%         \item Logistic Regression
+%         \item SVM 
+%         \item Random Forest
+%         \item KNN
+%     \end{itemize}
+    
+% \end{enumerate}

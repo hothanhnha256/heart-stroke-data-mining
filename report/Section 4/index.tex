@@ -1,0 +1,385 @@
+\section{Khảo sát và phân tích dữ liệu - EDA}
+
+\subsection{Tổng quan về dataset}
+
+\subsubsection{Đặc điểm cơ bản}
+Dataset \textbf{Healthcare Stroke Data} được sử dụng trong dự án bao gồm thông tin y tế và nhân khẩu học của 5,110 bệnh nhân. Mục tiêu là dự đoán nguy cơ đột quỵ dựa trên 11 thuộc tính đầu vào.
+
+\subsubsection{Cấu trúc thuộc tính}
+Dataset bao gồm các loại thuộc tính sau:
+
+\textbf{1. Biến số liên tục (Numeric):}
+\begin{itemize}
+    \item \texttt{age}: Tuổi (0.08 - 82)
+    \item \texttt{avg\_glucose\_level}: Mức glucose trung bình (55.12 - 271.74 mg/dL)
+    \item \texttt{bmi}: Chỉ số khối cơ  thể (10.3 - 97.6)
+\end{itemize}
+
+\textbf{2. Biến nhị phân (Binary):}
+\begin{itemize}
+    \item \texttt{hypertension}: Tăng huyết áp (0: Không, 1: Có)
+    \item \texttt{heart\_disease}: Bệnh tim (0: Không, 1: Có)
+\end{itemize}
+
+\textbf{3. Biến phân loại (Categorical):}
+\begin{itemize}
+    \item \texttt{gender}: Giới tính (Male, Female, Other)
+    \item \texttt{ever\_married}: Tình trạng hôn nhân (Yes, No)
+    \item \texttt{work\_type}: Loại công việc (Private, Self-employed, Govt\_job, children, Never\_worked)
+    \item \texttt{Residence\_type}: Nơi cư trú (Urban, Rural)
+    \item \texttt{smoking\_status}: Tình trạng hút thuốc (formerly smoked, never smoked, smokes, Unknown)
+\end{itemize}
+
+\textbf{4. Biến mục tiêu (Target):}
+\begin{itemize}
+    \item \texttt{stroke}: Đột quỵ (0: Không, 1: Có)
+\end{itemize}
+
+\subsection{Phân tích biến mục tiêu (Target Analysis)}
+
+\subsubsection{Phân phối class}
+Một trong những vấn đề quan trọng nhất của dataset là \textbf{class imbalance nghiêm trọng}. Phân tích cho thấy:
+
+\begin{equation}
+P(\text{stroke} = 1) = \frac{249}{5110} = 0.0487 \approx 4.87\%
+\end{equation}
+
+\begin{equation}
+P(\text{stroke} = 0) = \frac{4861}{5110} = 0.9513 \approx 95.13\%
+\end{equation}
+
+\begin{equation}
+\text{Imbalance Ratio} = \frac{N_{\text{majority}}}{N_{\text{minority}}} = \frac{4861}{249} \approx 19.5
+\end{equation}
+
+Sự mất cân bằng này có ý nghĩa quan trọng:
+\begin{itemize}
+    \item Models có xu hướng bias về lớp đa số (No Stroke)
+    \item Accuracy không phải là metric đánh giá phù hợp
+    \item Cần áp dụng techniques như SMOTE để cân bằng dữ liệu training
+    \item Metrics như F1-Score, Recall, ROC-AUC quan trọng hơn
+\end{itemize}
+
+\textbf{Visualization}: Hình \ref{fig:target_distribution} minh họa phân phối không cân bằng của biến target.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image//1.5/target_stroke.png}
+    \vspace{0.5em}
+    \caption{Phân phối biến target - Class Imbalance nghiêm trọng (95.13\% vs 4.87\%)}
+    \label{fig:target_distribution}
+\end{figure}
+
+\subsection{Phân tích biến số (Numeric Analysis)}
+
+\subsubsection{Thống kê mô tả}
+Ba biến số chính trong dataset được phân tích với các thống kê mô tả:
+
+\begin{table}[h]
+\centering
+\caption{Thống kê mô tả các biến số}
+\begin{tabular}{lrrr}
+\hline
+\textbf{Metric} & \textbf{age} & \textbf{avg\_glucose\_level} & \textbf{bmi} \\
+\hline
+Count & 5,110 & 5,110 & 4,909 \\
+Mean & 43.23 & 106.15 & 28.89 \\
+Std Dev & 22.61 & 45.28 & 7.85 \\
+Min & 0.08 & 55.12 & 10.30 \\
+25\% & 25.00 & 77.24 & 23.50 \\
+Median & 45.00 & 91.88 & 28.10 \\
+75\% & 61.00 & 114.09 & 33.10 \\
+Max & 82.00 & 271.74 & 97.60 \\
+\hline
+\end{tabular}
+\label{tab:numeric_stats}
+\end{table}
+
+\subsubsection{Phát hiện outliers}
+Phân tích box plots và histograms cho thấy:
+
+\textbf{1. Age (Tuổi):}
+\begin{itemize}
+    \item Phân phối tương đối đều, có một số trường hợp trẻ em (< 1 tuổi)
+    \item Không có outliers nghiêm trọng
+    \item Xu hướng: Nguy cơ đột quỵ tăng theo tuổi
+\end{itemize}
+
+\textbf{2. Average Glucose Level:}
+\begin{itemize}
+    \item Phân phối lệch phải (right-skewed)
+    \item Có outliers với giá trị cao (> 200 mg/dL)
+    \item Cần áp dụng IQR capping trong preprocessing
+\end{itemize}
+
+\textbf{3. BMI:}
+\begin{itemize}
+    \item Phân phối gần chuẩn (near-normal)
+    \item Có outliers ở cả hai đầu (< 15 hoặc > 50)
+    \item Missing values: 201 mẫu (3.93\%) - cần imputation
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=0.95\textwidth]{eda/eda_numeric_analysis.png}
+\caption{Phân tích biến số: Histograms và Box plots theo stroke status}
+\label{fig:numeric_analysis}
+\end{figure}
+
+\subsubsection{Correlation với target}
+Phân tích correlation Pearson với biến target cho thấy:
+
+\begin{table}[h]
+\centering
+\caption{Correlation của biến số với stroke}
+\begin{tabular}{lc}
+\hline
+\textbf{Feature} & \textbf{Pearson Correlation (absolute)} \\
+\hline
+age & 0.2453 \\
+avg\_glucose\_level & 0.1319 \\
+bmi & 0.0361 \\
+\hline
+\end{tabular}
+\label{tab:numeric_correlation}
+\end{table}
+
+Nhận xét:
+\begin{itemize}
+    \item \textbf{age} có correlation mạnh nhất với stroke (0.245)
+    \item \textbf{avg\_glucose\_level} có correlation trung bình (0.132)
+    \item \textbf{bmi} có correlation yếu (0.036)
+\end{itemize}
+
+\subsection{Phân tích biến phân loại (Categorical Analysis)}
+
+\subsubsection{Phân phối và stroke rate theo từng biến}
+
+\textbf{1. Gender (Giới tính):}
+\begin{itemize}
+    \item Female: 2,994 mẫu (58.6\%)
+    \item Male: 2,115 mẫu (41.4\%)
+    \item Other: 1 mẫu (0.02\%)
+    \item Stroke rate: Female (4.71\%), Male (5.11\%), Other (0\%)
+\end{itemize}
+
+\textbf{2. Ever Married (Tình trạng hôn nhân):}
+\begin{itemize}
+    \item Yes: 3,353 mẫu (65.6\%)
+    \item No: 1,757 mẫu (34.4\%)
+    \item \textbf{Quan sát quan trọng}: Người đã kết hôn có stroke rate cao hơn (6.5\% vs 1.3\%)
+    \item Có thể do correlation với tuổi (người đã kết hôn thường lớn tuổi hơn)
+\end{itemize}
+
+\textbf{3. Work Type (Loại công việc):}
+\begin{itemize}
+    \item Private: 2,925 mẫu (57.2\%)
+    \item Self-employed: 819 mẫu (16.0\%)
+    \item children: 687 mẫu (13.4\%)
+    \item Govt\_job: 657 mẫu (12.9\%)
+    \item Never\_worked: 22 mẫu (0.4\%)
+    \item Stroke rate cao nhất: Self-employed (7.94\%), thấp nhất: children (0.29\%)
+\end{itemize}
+
+\textbf{4. Residence Type (Nơi cư trú):}
+\begin{itemize}
+    \item Urban: 2,596 mẫu (50.8\%)
+    \item Rural: 2,514 mẫu (49.2\%)
+    \item Stroke rate: Urban (5.20\%) vs Rural (4.53\%) - Sự khác biệt không lớn
+\end{itemize}
+
+\textbf{5. Smoking Status (Tình trạng hút thuốc):}
+\begin{itemize}
+    \item never smoked: 1,892 mẫu (37.0\%)
+    \item Unknown: 1,544 mẫu (30.2\%)
+    \item formerly smoked: 885 mẫu (17.3\%)
+    \item smokes: 789 mẫu (15.4\%)
+    \item Stroke rate cao nhất: formerly smoked (7.91\%), Unknown có rate thấp nhất (3.04\%)
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=0.95\textwidth]{eda/eda_categorical_analysis.png}
+\caption{Phân tích biến phân loại: Count plots phân biệt theo stroke status}
+\label{fig:categorical_analysis}
+\end{figure}
+
+\subsection{Phân tích tương quan (Correlation Analysis)}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image//1.5/correlation_matrix.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+\subsubsection{Ma trận correlation}
+Để phân tích correlation giữa các biến, các biến categorical được encode thành numeric codes. Ma trận correlation hoàn chỉnh cho thấy:
+
+\begin{table}[h]
+\centering
+\caption{Top correlations với biến target stroke}
+\begin{tabular}{lc}
+\hline
+\textbf{Feature} & \textbf{Correlation (absolute)} \\
+\hline
+age & 0.2453 \\
+heart\_disease & 0.1349 \\
+avg\_glucose\_level & 0.1319 \\
+hypertension & 0.1279 \\
+ever\_married & 0.1083 \\
+bmi & 0.0361 \\
+work\_type & 0.0323 \\
+smoking\_status & 0.0281 \\
+Residence\_type & 0.0155 \\
+gender & 0.0089 \\
+\hline
+\end{tabular}
+\label{tab:all_correlation}
+\end{table}
+
+\textbf{Insights quan trọng:}
+\begin{itemize}
+    \item \textbf{Age} là predictor mạnh nhất (r = 0.245)
+    \item \textbf{Heart disease} và \textbf{Hypertension} có correlation trung bình (0.13-0.14)
+    \item \textbf{Residence\_type} và \textbf{Gender} có correlation rất yếu (< 0.02)
+    \item Không có multicollinearity nghiêm trọng giữa các features
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=0.9\textwidth]{eda/eda_correlation_matrix.png}
+\caption{Ma trận correlation heatmap - Phân tích mối quan hệ giữa các biến}
+\label{fig:correlation_matrix}
+\end{figure}
+
+\subsection{Phân tích chi tiết biến Age}
+
+Do \textbf{age} là biến có correlation cao nhất với stroke, một phân tích chuyên sâu được thực hiện:
+
+\subsubsection{Phân chia nhóm tuổi}
+Dữ liệu được chia thành 4 nhóm tuổi:
+\begin{itemize}
+    \item \textbf{< 30}: Trẻ và người trẻ tuổi
+    \item \textbf{30-50}: Trung niên
+    \item \textbf{50-65}: Người lớn tuổi
+    \item \textbf{65+}: Người cao tuổi
+    
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image//1.5/age.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsubsection{Phát hiện chính}
+\begin{enumerate}
+    \item \textbf{Xu hướng tăng mạnh}: Tỷ lệ stroke tăng gấp 124 lần từ nhóm < 30 (0.13\%) đến nhóm 65+ (16.17\%)
+    
+    \item \textbf{Ngưỡng quan trọng}: Nguy cơ tăng đáng kể sau 50 tuổi
+    \begin{equation}
+    \text{Risk Ratio}_{65+/<30} = \frac{16.17\%}{0.13\%} \approx 124
+    \end{equation}
+    
+    \item \textbf{Phân phối không đồng đều}: Nhóm < 30 chiếm 30.7\% mẫu nhưng chỉ có 0.8\% ca stroke
+    
+    \item \textbf{Nhóm cao rủi ro}: Người cao tuổi (65+) chiếm 18.9\% mẫu nhưng có 62.7\% tổng số ca stroke
+\end{enumerate}
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=0.95\textwidth]{eda/eda_age_analysis.png}
+\caption{Phân tích chi tiết tuổi: Phân phối và tỷ lệ stroke theo nhóm tuổi}
+\label{fig:age_analysis}
+\end{figure}
+
+\subsection{Phát hiện và kết luận từ EDA}
+
+\subsubsection{Phát hiện chính}
+\begin{enumerate}
+    \item \textbf{Class Imbalance nghiêm trọng}: 
+    \begin{itemize}
+        \item Tỷ lệ 19.5:1 (4,861 vs 249)
+        \item Cần SMOTE hoặc class\_weight trong training
+        \item Metrics: Ưu tiên F1-Score, Recall, ROC-AUC thay vì Accuracy
+    \end{itemize}
+    
+    \item \textbf{Biến quan trọng nhất - Age}:
+    \begin{itemize}
+        \item Correlation cao nhất (0.245)
+        \item Tỷ lệ stroke tăng 124 lần từ < 30 đến 65+
+        \item Có thể áp dụng feature engineering (age groups, polynomial features)
+    \end{itemize}
+    
+    \item \textbf{Missing Values}:
+    \begin{itemize}
+        \item Chỉ BMI có 201 missing values (3.93\%)
+        \item Cần imputation strategy: median/mean/KNN imputation
+    \end{itemize}
+    
+    \item \textbf{Outliers}:
+    \begin{itemize}
+        \item avg\_glucose\_level: Nhiều giá trị cao > 200
+        \item BMI: Một số giá trị cực đoan (< 15 hoặc > 50)
+        \item Áp dụng IQR capping trong preprocessing
+    \end{itemize}
+    
+    \item \textbf{Categorical Variables}:
+    \begin{itemize}
+        \item ever\_married có correlation với age và stroke (Yes: 6.56\% vs No: 1.65\%)
+        \item smoking\_status: "formerly smoked" có stroke rate cao (7.91\%)
+        \item Residence\_type: Urban (5.20\%) vs Rural (4.53\%) - khác biệt nhỏ
+        \item Gender: Female (4.71\%) vs Male (5.11\%) - tương đương nhau
+    \end{itemize}
+    
+    \item \textbf{Feature Engineering Opportunities}:
+    \begin{itemize}
+        \item Age groups (binning)
+        \item Interaction features: age × hypertension, age × heart\_disease
+        \item Polynomial features cho age
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Hướng tiếp cận preprocessing}
+Dựa trên EDA, pipeline preprocessing cần bao gồm:
+
+\begin{enumerate}
+    \item \textbf{Missing Value Handling}:
+    \begin{itemize}
+        \item BMI: SimpleImputer với strategy='median'
+    \end{itemize}
+    
+    \item \textbf{Outlier Treatment}:
+    \begin{itemize}
+        \item IQR capping cho avg\_glucose\_level và BMI
+        \item Công thức: $[\text{Q1} - 1.5 \times \text{IQR}, \text{Q3} + 1.5 \times \text{IQR}]$
+    \end{itemize}
+    
+    \item \textbf{Scaling}:
+    \begin{itemize}
+        \item StandardScaler cho numeric features (age, avg\_glucose\_level, BMI)
+        \item Quan trọng cho SVM, KNN, Logistic Regression
+    \end{itemize}
+    
+    \item \textbf{Encoding}:
+    \begin{itemize}
+        \item OneHotEncoder cho categorical variables
+        \item handle\_unknown='ignore' để xử lý unseen categories
+    \end{itemize}
+    
+    \item \textbf{Balancing}:
+    \begin{itemize}
+        \item SMOTE oversampling cho training set
+        \item Giữ nguyên test set distribution để đánh giá realistic
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Kết luận}
+EDA cho thấy dataset có những đặc điểm:
+\begin{itemize}
+    \item \textbf{Strengths}: Dữ liệu sạch với ít missing values, các features có ý nghĩa y tế rõ ràng
+    \item \textbf{Challenges}: Class imbalance nghiêm trọng, outliers trong biến số, correlation yếu giữa hầu hết features với target
+    \item \textbf{Key Insight}: Age là predictor mạnh nhất, cần đặc biệt chú ý trong modeling
+    \item \textbf{Next Steps}: Áp dụng preprocessing pipeline toàn diện với SMOTE, scaling, encoding
+\end{itemize}
+
+Các visualizations từ EDA được sử dụng để hiểu sâu về dữ liệu và định hướng các bước tiền xử lý, feature selection, và model training tiếp theo.

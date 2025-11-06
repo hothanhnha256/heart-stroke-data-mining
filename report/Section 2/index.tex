@@ -1,0 +1,194 @@
+\section{Giới thiệu}
+
+\subsection{Bối cảnh và động lực phát triển}
+
+Đột quỵ là một trong những nguyên nhân hàng đầu gây tử vong và tàn tật trên toàn thế giới. Theo Tổ chức Y tế Thế giới (WHO), mỗi năm có khoảng 15 triệu người bị đột quỵ, trong đó 5 triệu người tử vong và 5 triệu người bị tàn tật vĩnh viễn \footnote{Stroke, Cerebrovascular accident - \url{https://www.emro.who.int/health-topics/stroke-cerebrovascular-accident/}}. Những con số này cho thấy mức độ nghiêm trọng của đột quỵ đối với sức khỏe cộng đồng. Thực tế, đột quỵ được xếp hạng là nguyên nhân gây tử vong đứng thứ hai trên thế giới và là nguyên nhân hàng đầu gây tàn tật kéo dài \footnote{World Stroke Organization: Global Stroke Fact Sheet 2025 - \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC11786524/}} .
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/statictis_heartstroke.jpg}
+    \vspace{0.5em} 
+    \caption{Dữ liệu từ World Stroke Organization (WSO) Global Stroke Fact Sheet 2025}
+    \label{fig:placeholder}
+\end{figure}
+Tại Việt Nam, tỷ lệ mắc đột quỵ đang có xu hướng gia tăng, đặc biệt ở nhóm tuổi trung niên và cao tuổi. Theo số liệu từ Báo cáo Gánh nặng bệnh tật toàn cầu năm 2019, Việt Nam ghi nhận tới 135.999 ca tử vong do đột quỵ, đứng đầu trong nhóm các bệnh lý tim mạch. Tỷ lệ mắc mới ước tính khoảng 222 ca trên 100.000 dân mỗi năm, trong khi tỷ lệ hiện mắc lên đến 1.541 trên 100.000 dân, thuộc nhóm cao nhất khu vực Đông Nam Á. \footnote{Việt Nam thuộc nhóm nước có tỷ lệ đột quỵ cao nhất Đông Nam Á - \url{https://moh.gov.vn/su-kien-y-te-noi-bat/-/asset\_publisher//8EeXRtRENhb6/content/viet-nam-thuoc-nhom-nuoc-co-ty-le-ot-quy-cao-nhat-ong-nam-a}} 
+
+Phát hiện sớm nguy cơ đột quỵ đóng vai trò then chốt trong phòng ngừa và điều trị hiệu quả. Tuy nhiên, việc sàng lọc thủ công dựa trên kinh nghiệm lâm sàng thường tốn kém thời gian và nguồn lực y tế, đồng thời có thể bỏ sót các trường hợp nguy cơ cao. Hay việc nhận biết thông  các dấu hiệu ban đầu dựa theo phương pháp \textbf{F.A.S.T} vẫn còn khá kém hiệu quả so với thực tế, những biểu hiện này thường bị nhầm lẫn hoặc bỏ qua, khiến cơ hội can thiệp sớm bị bỏ lỡ.
+
+Trong bối cảnh đó, ứng dụng Machine Learning (ML) và Data Mining vào y tế đã mở ra hướng tiếp cận mới: xây dựng các mô hình dự đoán tự động dựa trên dữ liệu y tế và nhân khẩu học.
+
+Với sự phát triển mạnh mẽ của công nghệ thông tin và khả năng thu thập dữ liệu sức khỏe điện tử (EHR - Electronic Health Records), chúng ta có cơ hội tiếp cận các tập dữ liệu lớn về lịch sử bệnh án, các chỉ số sinh học và yếu tố nguy cơ của bệnh nhân. Việc khai thác hiệu quả nguồn dữ liệu này thông qua các thuật toán ML có thể giúp xác định sớm những cá nhân có nguy cơ cao, từ đó hỗ trợ bác sĩ đưa ra quyết định can thiệp kịp thời.
+
+\subsection{Mục tiêu đề tài}
+
+Mục tiêu tổng quát của đề tài là xây dựng một hệ thống dự đoán nguy cơ đột quỵ chính xác và đáng tin cậy dựa trên các thuật toán Machine Learning, từ đó hỗ trợ công tác sàng lọc và phòng ngừa bệnh trong thực tiễn y tế.
+
+Động lực chính của đề tài xuất phát từ:
+\begin{itemize}
+    \item \textbf{Nhu cầu y tế cấp thiết}: Giảm gánh nặng bệnh tật và tử vong do đột quỵ thông qua phát hiện sớm
+    \item \textbf{Cơ hội công nghệ}: Tận dụng sức mạnh của ML trong phân tích dữ liệu y tế quy mô lớn
+    \item \textbf{Khả năng ứng dụng thực tế}: Xây dựng công cụ hỗ trợ quyết định lâm sàng có độ chính xác cao
+    \item \textbf{Giá trị học thuật}: Khám phá các yếu tố nguy cơ quan trọng và mối quan hệ phi tuyến giữa chúng
+\end{itemize}
+
+\subsubsection{Mục tiêu cụ thể}
+
+\begin{enumerate}
+    \item \textbf{Phân tích và làm sạch dữ liệu y tế}:
+    \begin{itemize}
+        \item Thu thập và khảo sát bộ dữ liệu Healthcare Dataset Stroke Data từ Kaggle (5,110 bệnh nhân, 12 thuộc tính)
+        \item Xử lý giá trị thiếu (missing values), ngoại lai (outliers) và mất cân bằng dữ liệu (class imbalance)
+        \item Thực hiện phân tích khám phá dữ liệu (EDA) để hiểu rõ đặc tính và phân phối của các biến
+    \end{itemize}
+    
+    \item \textbf{Xây dựng quy trình tiền xử lý tự động}:
+    \begin{itemize}
+        \item Thiết kế pipeline preprocessing chuẩn hóa sử dụng sklearn
+        \item Áp dụng kỹ thuật SMOTE (Synthetic Minority Oversampling Technique) để cân bằng dữ liệu huấn luyện
+    \end{itemize}
+    
+    \item \textbf{Lựa chọn đặc trưng quan trọng}:
+    \begin{itemize}
+        \item Sử dụng 4 phương pháp độc lập: Correlation Analysis, Mutual Information, Random Forest Importance, Statistical Tests
+        \item Xác định top 8 đặc trưng có tác động mạnh nhất đến nguy cơ đột quỵ
+        \item So sánh và xác thực kết quả với kiến thức y học hiện đại
+    \end{itemize}
+    
+    \item \textbf{Huấn luyện và so sánh các mô hình ML}:
+    \begin{itemize}
+        \item Triển khai 4 thuật toán: Logistic Regression, Random Forest, SVM (RBF kernel), K-Nearest Neighbors
+        \item Đánh giá hiệu năng dựa trên F1-Score, Recall, ROC-AUC (thay vì Accuracy do dữ liệu mất cân bằng)
+        \item Lựa chọn mô hình tối ưu ưu tiên Recall cao (giảm thiểu False Negatives - bỏ sót ca bệnh)
+    \end{itemize}
+    
+    \item \textbf{Đánh giá và giải thích kết quả}:
+    \begin{itemize}
+        \item Phân tích confusion matrix, ROC curves và các metrics chi tiết
+        \item Giải thích ý nghĩa y học của các kết quả dự đoán (false positives vs false negatives)
+        \item Đề xuất chiến lược triển khai mô hình trong môi trường lâm sàng
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Chỉ số thành công}
+
+Đề tài được coi là thành công khi đạt được:
+\begin{itemize}
+    \item \textbf{Recall $\geq$ 0.75}: Phát hiện ít nhất 75\% các ca đột quỵ (minimize False Negatives)
+    \item \textbf{F1-Score $\geq$ 0.20}: Cân bằng hợp lý giữa Precision và Recall
+    \item \textbf{ROC-AUC $\geq$ 0.80}: Khả năng phân biệt tốt giữa hai lớp (stroke vs no stroke)
+    \item \textbf{Reproducibility}: Kết quả ổn định và có thể tái tạo với random\_state cố định
+\end{itemize}
+
+\subsection{Đối tượng áp dụng}
+
+Hệ thống dự đoán nguy cơ đột quỵ được thiết kế nhằm phục vụ các đối tượng sau:
+
+\subsubsection{Đối tượng trực tiếp}
+
+\begin{enumerate}
+    \item \textbf{Bác sĩ lâm sàng}:
+    \begin{itemize}
+        \item Bác sĩ đa khoa tại phòng khám, trung tâm y tế
+        \item Bác sĩ chuyên khoa tim mạch, thần kinh
+        \item Y sĩ và điều dưỡng thực hiện khám sàng lọc ban đầu
+    \end{itemize}
+    
+    \item \textbf{Cơ sở y tế}:
+    \begin{itemize}
+        \item Bệnh viện, phòng khám đa khoa
+        \item Trung tâm y tế dự phòng
+        \item Trạm y tế xã/phường (chăm sóc sức khỏe ban đầu)
+    \end{itemize}
+    
+    \item \textbf{Người dân}:
+    \begin{itemize}
+        \item Người lớn tuổi (từ 40 tuổi trở lên) cần kiểm tra sức khỏe định kỳ
+        \item Người có yếu tố nguy cơ cao: tăng huyết áp, bệnh tim, tiểu đường
+        \item Người có tiền sử gia đình mắc đột quỵ
+        \item Cộng đồng quan tâm đến phòng ngừa bệnh tật
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Đối tượng gián tiếp}
+
+\begin{itemize}
+    \item \textbf{Nhà nghiên cứu y sinh}: Sử dụng mô hình và phương pháp làm tài liệu tham khảo
+    \item \textbf{Sinh viên y khoa/công nghệ thông tin}: Học tập về ứng dụng ML trong y tế
+    \item \textbf{Nhà quản lý y tế}: Đưa ra chính sách phòng ngừa dựa trên phân tích dữ liệu
+    \item \textbf{Nhà phát triển phần mềm y tế}: Tích hợp mô hình vào hệ thống EMR/HIS
+\end{itemize}
+
+\subsection{Phạm vi và ứng dụng}
+
+\subsubsection{Phạm vi nghiên cứu}
+
+\textbf{Phạm vi dữ liệu:}
+Bộ dữ liệu được sử dụng trong đề tài lấy từ \textbf{Stroke Prediction Dataset} trên nền tảng \textbf{Kaggle}\footnote{Nguồn: \url{https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset}}
+. Tập dữ liệu có các đặc điểm chính như sau:
+\begin{itemize}
+\item \textbf{Kích thước mẫu:} 5.110 bản ghi, mỗi bản ghi tương ứng với một bệnh nhân.
+\item \textbf{Các biến đầu vào:} Gồm 11 biến độc lập (loại bỏ 1 biến ID), được chia thành ba nhóm chính:
+\begin{itemize}
+\item \textit{Nhân khẩu học:} Tuổi, giới tính, tình trạng hôn nhân, loại công việc, nơi cư trú.
+\item \textit{Y tế:} Tăng huyết áp, bệnh tim, mức glucose trung bình, chỉ số khối cơ thể (BMI).
+\item \textit{Lối sống:} Tình trạng hút thuốc.
+\end{itemize}
+\item \textbf{Biến mục tiêu:} \texttt{stroke} (0 = Không đột quỵ, 1 = Đột quỵ).
+\end{itemize}
+
+\textbf{Phạm vi phương pháp:}
+Trong phạm vi đề tài, nhóm nghiên cứu triển khai các bước xử lý và mô hình hóa dữ liệu như sau:
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{image/Model_RCM.png}
+    \vspace{0.5em}
+    \caption{Luồng xử lý, huấn luyện và đánh giá mô hình dự đoán đột quỵ}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{itemize}
+\item \textit{Tiền xử lý dữ liệu (Preprocessing):} Bổ sung giá trị khuyết (missing value imputation), xử lý ngoại lệ bằng IQR, chuẩn hóa (scaling) và mã hóa biến (encoding).
+\item \textit{Cân bằng dữ liệu (Class balancing):} Áp dụng kỹ thuật \textbf{SMOTE} để tăng cường mẫu thuộc lớp thiểu số (chỉ áp dụng cho tập huấn luyện).
+\item \textit{Lựa chọn đặc trưng (Feature selection):} Sử dụng bốn phương pháp: hệ số tương quan, Mutual Information, Random Forest Importance và các kiểm định thống kê.
+\item \textit{Huấn luyện mô hình (Modeling):} Thực nghiệm với bốn thuật toán học có giám sát gồm: Logistic Regression, Random Forest, Support Vector Machine (SVM) và K-Nearest Neighbors (KNN).
+\item \textit{Đánh giá mô hình (Evaluation):} Sử dụng các thước đo F1-Score, Recall, Precision, ROC-AUC và ma trận nhầm lẫn (Confusion Matrix).
+\end{itemize}
+
+\textbf{Giới hạn nghiên cứu:}
+\begin{itemize}
+\item Dữ liệu được thu thập từ một nguồn duy nhất (Kaggle), chưa phản ánh đa dạng dân số.
+\item Bộ dữ liệu thiếu yếu tố thời gian, do đó không thể theo dõi diễn tiến bệnh.
+\item Thiếu một số biến y học quan trọng như: nồng độ lipid máu, mức độ vận động, chế độ dinh dưỡng.
+\item Chưa tích hợp các dữ liệu y học hình ảnh (CT Scan, MRI), hạn chế khả năng phân tích chuyên sâu.
+\end{itemize}
+
+\subsubsection{Ứng dụng thực tiễn}
+
+Đề tài hướng đến ba hướng ứng dụng chính trong thực tiễn y tế:
+
+\begin{enumerate}
+\item \textbf{Hệ thống sàng lọc tự động:}
+\begin{itemize}
+\item Tích hợp vào các phần mềm quản lý bệnh viện (HIS – Hospital Information System).
+\item Cảnh báo sớm khi bệnh nhân có nguy cơ đột quỵ cao (xác suất $>$ 50%).
+\item Hỗ trợ ưu tiên khám chuyên sâu cho nhóm bệnh nhân nguy cơ cao.
+\end{itemize}
+\item \textbf{Công cụ hỗ trợ quyết định lâm sàng (CDSS – Clinical Decision Support System):}
+\begin{itemize}
+    \item Cung cấp điểm số nguy cơ (risk score) và diễn giải các yếu tố đóng góp vào quyết định.
+    \item Gợi ý các xét nghiệm, kiểm tra bổ sung dựa trên hồ sơ bệnh nhân.
+    \item Đề xuất các biện pháp phòng ngừa phù hợp như điều chỉnh thuốc hoặc thay đổi lối sống.
+\end{itemize}
+
+\item \textbf{Nghiên cứu dịch tễ học:}
+\begin{itemize}
+    \item Phân tích các yếu tố nguy cơ trên quy mô lớn để nhận diện xu hướng bệnh lý.
+    \item Xác định nhóm dân số dễ tổn thương nhằm định hướng chính sách y tế công cộng.
+    \item Đánh giá hiệu quả của các chương trình phòng chống và can thiệp cộng đồng.
+\end{itemize}
+\end{enumerate}
+
+
+
+
+

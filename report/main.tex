@@ -1,0 +1,270 @@
+\documentclass[a4paper]{article}
+\usepackage{vntex}
+\usepackage{enumitem}[inline] 
+\usepackage{indentfirst}
+\usepackage{amssymb,epsfig,latexsym,array,hhline,fancyhdr}
+\usepackage{tabularx, booktabs} 
+\usepackage[normalem]{ulem}
+\usepackage{tabularray}
+\usepackage[makeroom]{cancel}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{algorithmicx}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{algcompatible}
+\usepackage{amsthm}
+\usepackage{multicol,longtable,amscd}
+\usepackage{diagbox}
+\usepackage{booktabs}
+\usepackage{alltt}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage{caption,subcaption}
+\usepackage{lastpage}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\usepackage{makecell}
+\usepackage{color}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{epsfig}
+\usepackage{tikz}
+\usepackage{microtype}
+\usepackage[none]{hyphenat}
+\usetikzlibrary{arrows,snakes,backgrounds}
+\usepackage[unicode]{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{eso-pic}
+\usepackage{titlesec}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  left=30mm, right=20mm,
+  top=25mm, bottom=25mm,
+  includehead, includefoot,
+  heightrounded
+}
+\def\ojoin{\setbox0=\hbox{$\bowtie$}%
+  \rule[-.02ex]{.25em}{.4pt}\llap{\rule[\ht0]{.25em}{.4pt}}}
+\def\leftouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie}}
+\def\rightouterjoin{\mathbin{\bowtie\mkern-5.8mu\ojoin}}
+\def\fullouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie\mkern-5.8mu\ojoin}}
+
+
+\lstset{
+    language=C,
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    xleftmargin=1em,
+    xrightmargin=1em,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    literate=%
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+    {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+    {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+    {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+    {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+    {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+    {ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+    {ơ}{{\ohorn}}1 {ư}{{\uhorn}}1 {Ơ}{{\Ohorn}}1 {Ư}{{\Uhorn}}1
+    {ă}{{\abreve}}1 {Ă}{{\Abreve}}1
+    {đ}{{\dj}}1 {Đ}{{\DJ}}1
+}
+\hypersetup{urlcolor=blue,linkcolor=black,citecolor=black,colorlinks=true}
+\usepackage{tocloft}
+\usepackage[normalem]{ulem}
+
+\def\thesislayout{
+    \geometry{
+        a4paper,
+        total={160mm,240mm},
+        left=30mm,
+        top=30mm,
+    }
+}
+\thesislayout
+
+\setlength{\headheight}{48pt}  % 40pt đôi khi vẫn thiếu
+\setlength{\footskip}{22pt}    % đảm bảo không chạm phần nội dung
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[L]{
+ \begin{tabular}{rl}
+    \begin{picture}(25,15)(0,0)
+    \put(0,-8){\includegraphics[width=12mm, height=8mm]{image/hcmut.png}}
+   \end{picture}&
+    \begin{tabular}{l}
+        \textcolor{blue}{\textbf{\bf \ttfamily Trường Đại Học Bách Khoa Tp.Hồ Chí Minh}}\\
+        \textcolor{blue}{\textbf{\bf \ttfamily Khoa Khoa Học \& Kỹ Thuật Máy Tính}}
+    \end{tabular}   
+ \end{tabular}
+}
+\fancyhead[R]{
+    \begin{tabular}{l}
+        \tiny \bf \\
+        \tiny \bf 
+    \end{tabular}
+}
+\fancyfoot{}
+\fancyfoot[L]{\scriptsize \ttfamily Assignment Khai Phá Dữ Liệu - HK242 }
+\fancyfoot[R]{\scriptsize \ttfamily Trang {\thepage}/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\makeatletter
+\newcounter {subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\newcommand\subsubsubsection{\@startsection{subsubsubsection}{4}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+\newcommand*\l@subsubsubsection{\@dottedtocline{3}{10.0em}{4.1em}}
+\newcommand*{\subsubsubsectionmark}[1]{}
+\makeatother
+
+\sloppy
+\captionsetup[figure]{labelfont={small,bf},textfont={small,it},belowskip=-1pt,aboveskip=-9pt}
+\captionsetup[table]{labelfont={small,bf},textfont={small,it},belowskip=-1pt,aboveskip=7pt}
+
+\setlength{\floatsep}{5pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{5pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+
+\newcommand\BackgroundPic{
+    \put(0,0){
+        \parbox[b][\paperheight]{\paperwidth}{
+            \vfill
+            \centering
+            \includegraphics[width=\paperwidth, height=\paperheight, keepaspectratio]{image/background.png}
+            \vfill
+        }
+    }
+}
+
+\thesislayout
+
+\begin{document}
+
+\begin{titlepage}
+\AddToShipoutPicture*{\BackgroundPic}
+\begin{center}
+ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH \\
+TRƯỜNG ĐẠI HỌC BÁCH KHOA \\
+KHOA KHOA HỌC \& KỸ THUẬT MÁY TÍNH 
+\end{center}
+\vspace{1cm}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=7cm]{image/hcmut.png}
+\end{center}
+\end{figure}
+
+\vspace{0.5cm}
+
+\begin{center}
+\begin{tabular}{c}
+\multicolumn{1}{c}{\textbf{{\Large Báo cáo bài tập lớn  }}}\\\\
+\multicolumn{1}{c}{\textbf{{\Large Khai Phá Dữ Liệu}}}\\\\
+\hline
+\\
+\bigskip
+\textbf{\large Chủ đề }\\
+         \textbf{\large Tìm hiểu và xây dựng hệ thống dự đoán trụy tim }\\
+         \hline
+         \\
+\end{tabular}
+\end{center}
+\bigskip
+\bigskip
+ {\centering
+ \bigskip
+\textbf{\textcolor{black}{Giảng viên hướng dẫn: Đỗ Thanh Thái}}
+\par}
+
+\vspace{0.5cm}
+\begin{center}
+    Danh sách thành viên
+\end{center}
+\begin{center}
+    \setlength\extrarowheight{3pt}
+    \begin{table}[!h]
+    \centering
+    \begin{tabular}{|m{4cm}|m{2cm} |}
+    \hline
+    \textbf{Họ và tên} &  \textbf{MSSV}  \\
+    \hline
+   Hồ Thanh Nhã & 2212345\\
+   \hline
+   Trần Thế Nhân & 2212383\\
+    \hline
+    Đặng Minh Nhật & 2212387\\ 
+   \hline
+   
+    \end{tabular}
+\end{table}
+\end{center}
+
+\begin{center}
+{\footnotesize Tp. Hồ Chí Minh, Tháng 9/2025}
+\end{center}
+\end{titlepage}
+
+\include{division_of_work}
+
+
+\newpage
+\begin{spacing}{1.3}
+\tableofcontents
+\end{spacing}
+
+% \newpage
+% \begin{spacing}{1.3}
+% \listoffigures
+% \end{spacing}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newpage
+\input{Section 2/index}
+
+\newpage
+\input{Section 3/index}
+
+\newpage
+\input{Section 4/index}
+
+\newpage
+\input{Section 5/index}
+
+\newpage
+\input{Section 6/index}
+
+\newpage
+\input{Section 7/index}
+
+\newpage
+\input{Section 8/index}
+
+\newpage
+\input{resources}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

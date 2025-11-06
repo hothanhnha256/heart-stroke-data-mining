@@ -1,0 +1,234 @@
+\section{Tiền xử lý dữ liệu}
+
+\subsection{Tổng quan quy trình tiền xử lý}
+
+Tiền xử lý dữ liệu là bước quan trọng nhằm chuẩn bị dữ liệu thô thành dạng phù hợp cho các thuật toán Machine Learning. Dựa trên kết quả EDA ở Chương 4, quy trình tiền xử lý được thiết kế để giải quyết các vấn đề:
+
+\begin{itemize}
+    \item \textbf{Missing values}: BMI có 201 giá trị thiếu (3.93\%)
+    \item \textbf{Outliers}: avg\_glucose\_level và BMI có outliers nghiêm trọng
+    \item \textbf{Class imbalance}: Tỷ lệ 19.5:1 giữa lớp âm và dương
+    \item \textbf{Mixed data types}: Numeric, categorical, và binary features
+    \item \textbf{Feature scaling}: Các biến số có range khác nhau
+\end{itemize}
+
+Pipeline tiền xử lý được implement trong file \texttt{prepare-stroke.py} với các bước tuần tự: Data Cleaning → Train-Test Split → Preprocessing Pipeline → SMOTE Balancing.
+
+\subsection{Xử lý giá trị thiếu (Missing Values)}
+
+\subsubsection{Phân tích missing values}
+Từ EDA, chỉ có cột \texttt{bmi} có giá trị thiếu (201 mẫu - 3.93\%). Sử dụng \textbf{SimpleImputer} từ scikit-learn với hai strategy:
+
+\textbf{1. Cho biến số (Numeric):}
+\begin{itemize}
+    \item Strategy: \texttt{median} - Robust với outliers
+    \item Áp dụng: \texttt{age}, \texttt{avg\_glucose\_level}, \texttt{bmi}
+\end{itemize}
+
+\begin{equation}
+\text{value}_{\text{imputed}} = \begin{cases}
+\text{value}_{\text{original}} & \text{if not missing} \\
+\text{median}(\text{column}) & \text{if missing}
+\end{cases}
+\end{equation}
+
+\textbf{2. Cho biến phân loại (Categorical):}
+\begin{itemize}
+    \item Strategy: \texttt{most\_frequent}
+    \item Áp dụng: \texttt{gender}, \texttt{ever\_married}, \texttt{work\_type}, \texttt{Residence\_type}, \texttt{smoking\_status}
+\end{itemize}
+
+\subsection{Xử lý outliers}
+
+Sử dụng phương pháp \textbf{IQR (Interquartile Range)} với $k = 1.5$ (Tukey's method):
+
+\begin{equation}
+\text{IQR} = Q_3 - Q_1
+\end{equation}
+
+\begin{equation}
+\text{Outlier bounds} = [Q_1 - 1.5 \times \text{IQR}, Q_3 + 1.5 \times \text{IQR}]
+\end{equation}
+
+Thay vì loại bỏ, sử dụng \textbf{capping} - giới hạn giá trị vào khoảng IQR:
+
+\begin{equation}
+\text{value}_{\text{capped}} = \begin{cases}
+Q_1 - 1.5 \times \text{IQR} & \text{if } \text{value} < Q_1 - 1.5 \times \text{IQR} \\
+Q_3 + 1.5 \times \text{IQR} & \text{if } \text{value} > Q_3 + 1.5 \times \text{IQR} \\
+\text{value} & \text{otherwise}
+\end{cases}
+\end{equation}
+
+Áp dụng cho \texttt{bmi} và \texttt{avg\_glucose\_level}.
+
+\subsection{Chia tập dữ liệu (Train-Test Split)}
+
+Sử dụng \texttt{train\_test\_split} với stratified sampling:
+
+\begin{itemize}
+    \item \textbf{test\_size}: 0.2 (20\% cho test set)
+    \item \textbf{random\_state}: 42 (reproducibility)
+    \item \textbf{stratify}: \texttt{y} (giữ tỷ lệ class)
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Phân phối stroke sau train-test split}
+\begin{tabular}{lrrr}
+\hline
+\textbf{Dataset} & \textbf{Total} & \textbf{Stroke} & \textbf{Stroke \%} \\
+\hline
+Original & 5,110 & 249 & 4.87\% \\
+Train & 4,088 & 199 & 4.87\% \\
+Test & 1,022 & 50 & 4.89\% \\
+\hline
+\end{tabular}
+\label{tab:train_test_split}
+\end{table}
+
+\subsection{Feature Engineering và Encoding}
+
+\subsubsection{Chuẩn hóa biến số (StandardScaler)}
+Đưa các biến số về cùng scale bằng z-score normalization:
+
+\begin{equation}
+z = \frac{x - \mu}{\sigma}
+\end{equation}
+
+Áp dụng cho: \texttt{age}, \texttt{avg\_glucose\_level}, \texttt{bmi}
+
+\subsubsection{One-Hot Encoding}
+Chuyển categorical variables thành binary vectors. Ví dụ với \texttt{gender}:
+
+\begin{equation}
+\text{OneHot}(\text{gender}) = 
+\begin{cases}
+[1, 0, 0] & \text{if Female} \\
+[0, 1, 0] & \text{if Male} \\
+[0, 0, 1] & \text{if Other}
+\end{cases}
+\end{equation}
+
+5 biến categorical tạo ra 16 features sau encoding.
+
+\subsubsection{Binary Features}
+\texttt{hypertension} và \texttt{heart\_disease} giữ nguyên (0/1).
+
+\subsection{ColumnTransformer Pipeline}
+
+Xử lý đồng thời các loại features khác nhau:
+
+\begin{lstlisting}[language=Python, caption=Preprocessing pipeline]
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+# Numeric pipeline
+numeric_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler())
+])
+
+# Categorical pipeline
+categorical_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="most_frequent")),
+    ("onehot", OneHotEncoder(handle_unknown="ignore"))
+])
+
+# Combine transformers
+preprocessor = ColumnTransformer([
+    ("num", numeric_pipeline, numeric_cols),
+    ("cat", categorical_pipeline, categorical_cols),
+    ("bin", "passthrough", binary_cols)
+])
+
+# Fit on train only (avoid data leakage!)
+preprocessor.fit(X_train)
+X_train_transformed = preprocessor.transform(X_train)
+X_test_transformed = preprocessor.transform(X_test)
+\end{lstlisting}
+
+\textbf{Quan trọng}: Pipeline chỉ \texttt{fit()} trên training set để tránh data leakage.
+
+\subsection{Xử lý Class Imbalance với SMOTE}
+
+\subsubsection{SMOTE Algorithm}
+SMOTE (Synthetic Minority Over-sampling Technique) tạo synthetic samples cho lớp minority:
+
+\begin{equation}
+x_{\text{synthetic}} = x_i + \lambda \cdot (x_{\text{neighbor}} - x_i), \quad \lambda \sim U(0, 1)
+\end{equation}
+
+\textbf{Quan trọng}: SMOTE chỉ áp dụng cho \textbf{training set}!
+
+\begin{table}[h]
+\centering
+\caption{Kết quả sau SMOTE}
+\begin{tabular}{lrrr}
+\hline
+\textbf{Dataset} & \textbf{Total} & \textbf{Stroke} & \textbf{Stroke \%} \\
+\hline
+Train (Before SMOTE) & 4,088 & 199 & 4.87\% \\
+\textbf{Train (After SMOTE)} & \textbf{7,778} & \textbf{3,889} & \textbf{50.00\%} \\
+Test (Unchanged) & 1,022 & 50 & 4.89\% \\
+\hline
+\end{tabular}
+\label{tab:smote_results}
+\end{table}
+
+\textbf{Lý do không SMOTE test set}:
+\begin{itemize}
+    \item Test set phải phản ánh real-world distribution
+    \item SMOTE trên test → metrics không đáng tin cậy
+    \item Model phải học detect stroke trong điều kiện imbalanced
+\end{itemize}
+
+\subsection{Feature Space sau tiền xử lý}
+
+Dataset transform từ 12 cột gốc thành 21 features:
+
+\begin{table}[h]
+\centering
+\caption{Feature composition}
+\begin{tabular}{lrr}
+\hline
+\textbf{Feature Type} & \textbf{Original} & \textbf{Final} \\
+\hline
+Numeric (scaled) & 3 & 3 \\
+Categorical (one-hot) & 5 & 16 \\
+Binary (passthrough) & 2 & 2 \\
+\hline
+\textbf{Total} & \textbf{10} & \textbf{21} \\
+\hline
+\end{tabular}
+\label{tab:feature_composition}
+\end{table}
+
+\textbf{Danh sách 21 features}: age, avg\_glucose\_level, bmi, gender\_Female, gender\_Male, gender\_Other, ever\_married\_No, ever\_married\_Yes, work\_type\_Govt\_job, work\_type\_Never\_worked, work\_type\_Private, work\_type\_Self-employed, work\_type\_children, Residence\_type\_Rural, Residence\_type\_Urban, smoking\_status\_Unknown, smoking\_status\_formerly smoked, smoking\_status\_never smoked, smoking\_status\_smokes, hypertension, heart\_disease.
+
+\subsection{Tổng kết}
+
+Quy trình tiền xử lý hoàn chỉnh:
+
+\begin{enumerate}
+    \item \textbf{Data Cleaning}: Impute BMI, cap outliers (IQR method)
+    \item \textbf{Train-Test Split}: 80-20, stratified sampling
+    \item \textbf{Preprocessing Pipeline}: Numeric (median + StandardScaler), Categorical (most\_frequent + OneHotEncoder), Binary (passthrough)
+    \item \textbf{SMOTE}: Chỉ train set, 4,088 → 7,778 samples (50\% balanced)
+\end{enumerate}
+
+\begin{table}[h]
+\centering
+\caption{Kết quả preprocessing}
+\begin{tabular}{lcc}
+\hline
+\textbf{Metric} & \textbf{Train Set} & \textbf{Test Set} \\
+\hline
+Số samples & 7,778 & 1,022 \\
+Stroke ratio & 50.00\% & 4.89\% \\
+Số features & 21 & 21 \\
+Missing values & 0 & 0 \\
+\hline
+\end{tabular}
+\label{tab:preprocessing_summary}
+\end{table}
