@@ -1,0 +1,300 @@
+\section{Kết quả và đánh giá}
+
+\subsection{Mô hình Logistic Regression}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/ROC_logs.png}
+    \vspace{0.5em}
+    \caption{Minh họa đường cong ROC thu được từ kết quả dự đoán trên tập kiểm thử bằng mô hình Logistic Regression.}
+    \label{fig:roc_logreg}
+\end{figure}
+
+Quan sát Hình~\ref{fig:roc_logreg} cho thấy diện tích dưới đường cong ROC (AUC) đạt giá trị khoảng 0,846. Đây là một chỉ báo quan trọng phản ánh năng lực phân biệt giữa hai lớp của mô hình. Với AUC gần 0,85, Logistic Regression chứng tỏ khả năng xếp hạng xác suất tốt: trong phần lớn trường hợp, mô hình gán giá trị xác suất cao hơn cho mẫu dương tính (đột quỵ) so với mẫu âm tính.
+
+Tiếp theo, hình sau trình bày ma trận nhầm lẫn (Confusion Matrix) cho Logistic Regression.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/Confusion_LOGs.png}
+    \vspace{0.5em}
+    \caption{Ma trận nhầm lẫn của Logistic Regression thu được từ kết quả dự đoán trên tập kiểm thử.}
+    \label{fig:cm_logreg}
+\end{figure}
+
+Dựa trên Hình~\ref{fig:cm_logreg}, ta thu được các giá trị: True Negative = 726, False Positive = 246, False Negative = 10, True Positive = 40. Diễn giải như sau:
+\begin{itemize}
+    \item Trong 50 ca đột quỵ thực sự, mô hình phát hiện được 40 ca, bỏ sót 10 ca, dẫn đến recall = 0,80 cho lớp dương tính.
+    \item Tuy nhiên, trong tổng số 286 dự đoán dương tính (40 đúng + 246 sai), chỉ có 40 thực sự đúng, khiến precision chỉ đạt 0,14.
+    \item Về tổng thể, mô hình phân loại đúng 766/1.022 mẫu, tương ứng accuracy = 0,75.
+\end{itemize}
+
+Những số liệu này được phản ánh trực tiếp trong log từ output:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/Report_Logs.png}
+    \vspace{0.5em}
+    \caption{Báo cáo phân loại Logistic Regression.}
+    \label{fig:report_logreg}
+\end{figure}
+
+Bảng trên xác nhận các quan sát từ hình ảnh: recall của lớp dương tính cao (0,80) nhưng precision thấp (0,14). Điểm f1-score cho lớp này chỉ đạt 0,24, phản ánh sự đánh đổi mạnh mẽ giữa khả năng phát hiện ca bệnh thật (high recall) và số lượng cảnh báo giả (low precision).
+
+Một điểm đáng chú ý khác là NPV (Negative Predictive Value) đạt rất cao, khoảng 0,986. Nghĩa là khi mô hình dự đoán “không đột quỵ”, kết quả hầu như chính xác. Đây là một ưu thế trong sàng lọc, giúp bác sĩ yên tâm hơn với các ca bị phân loại âm tính.
+
+Tóm lại, Logistic Regression thể hiện rõ ràng đặc điểm của một mô hình phù hợp cho bài toán sàng lọc: ít bỏ sót bệnh nhân (recall cao), chấp nhận đánh đổi bằng số lượng lớn cảnh báo giả (precision thấp). Trong bối cảnh y tế, đặc biệt là phòng ngừa và phát hiện sớm đột quỵ, ưu tiên này có thể xem là hợp lý vì bỏ sót bệnh nhân nguy cơ thường gây hậu quả nghiêm trọng hơn so với việc kiểm tra lại các ca cảnh báo giả.
+
+\subsection{Mô hình Random Forest}
+
+Song song với Logistic Regression, nhóm nghiên cứu tiến hành thử nghiệm mô hình Random Forest nhằm đánh giá khả năng phân loại trên cùng bộ dữ liệu đã tiền xử lý.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/ROC_rf.png}
+    \vspace{0.5em}
+    \caption{Minh họa đường cong ROC thu được từ kết quả dự đoán trên tập kiểm thử bằng mô hình Random Forest.}
+    \label{fig:roc_rf}
+\end{figure}
+
+Quan sát Hình~\ref{fig:roc_rf} cho thấy diện tích dưới đường cong ROC (AUC) chỉ đạt khoảng 0,761. Giá trị này thấp hơn đáng kể so với Logistic Regression (~0,846), cho thấy khả năng phân biệt giữa hai lớp của Random Forest hạn chế hơn. Mặc dù đường cong ROC vẫn nằm trên đường chéo ngẫu nhiên, sự chênh lệch không lớn cho thấy mô hình gặp khó khăn trong việc xếp hạng xác suất chính xác giữa hai lớp.
+
+Tiếp theo, hình sau trình bày ma trận nhầm lẫn (Confusion Matrix) cho Random Forest.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/Confusion_RF.png}
+    \vspace{0.5em}
+    \caption{Ma trận nhầm lẫn của Random Forest thu được từ kết quả dự đoán trên tập kiểm thử.}
+    \label{fig:cm_rf}
+\end{figure}
+
+Từ Hình~\ref{fig:cm_rf} có thể thấy rằng Random Forest dự đoán rất chính xác lớp âm tính (không đột quỵ), với 940/972 ca được nhận diện đúng. Tuy nhiên, hiệu năng với lớp dương tính lại rất kém: chỉ có 7/50 ca đột quỵ thực sự được phát hiện, còn tới 43 ca bị bỏ sót. Điều này dẫn đến recall của lớp dương tính chỉ đạt 0,14 - thấp hơn nhiều so với Logistic Regression.
+
+Những số liệu này được phản ánh trực tiếp trong log từ output:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/Random_rs.png}
+    \vspace{0.5em}
+    \caption{Báo cáo phân loại Random Forest.}
+    \label{fig:report_rf}
+\end{figure}
+
+Phân tích sâu hơn cho thấy:
+\begin{itemize}
+    \item Accuracy đạt 0,93, cao hơn nhiều so với Logistic Regression (0,75). Tuy nhiên, con số này mang tính đánh lừa do dữ liệu mất cân bằng nghiêm trọng; việc dự đoán “không đột quỵ” cho hầu hết mẫu cũng có thể dẫn đến accuracy cao.
+    \item Precision của lớp dương tính đạt 0,18, tức là trong số các dự đoán dương tính, chỉ khoảng 18\% là chính xác.
+    \item Recall của lớp dương tính rất thấp (0,14), đồng nghĩa với việc mô hình bỏ sót tới 86\% số ca đột quỵ thực sự. Đây là một hạn chế nghiêm trọng trong bối cảnh ứng dụng y tế.
+    \item F1-score của lớp dương tính chỉ đạt 0,16, phản ánh sự cân bằng kém giữa precision và recall.
+\end{itemize}
+
+Từ góc độ lâm sàng, việc bỏ sót bệnh nhân có nguy cơ cao là điều khó chấp nhận. Mặc dù Random Forest mang lại độ chính xác tổng thể cao, nhưng hiệu quả thực tế trong nhiệm vụ phát hiện sớm đột quỵ lại rất hạn chế. Nói cách khác, Random Forest cho thấy ưu thế trong việc nhận diện nhóm khỏe mạnh (không đột quỵ), nhưng thất bại trong việc phát hiện đúng nhóm bệnh nhân (có đột quỵ) — vốn là đối tượng quan tâm chính trong nghiên cứu này.
+
+
+
+\subsection{Mô hình SVM}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/ROC_SVM.png}
+    \vspace{0.5em}
+    \caption{Đường cong ROC của mô hình SVM.}
+    \label{fig:roc_svm}
+\end{figure}
+
+Quan sát Hình~\ref{fig:roc_svm} cho thấy diện tích dưới đường cong ROC (AUC) đạt giá trị khoảng \textbf{0,7999} (làm tròn \textbf{0,80}).  
+Điều này phản ánh khả năng phân loại ở mức khá tốt: trong đa số trường hợp, mô hình gán xác suất cao hơn cho mẫu dương tính (“Stroke”) so với mẫu âm tính (“No Stroke”), thể hiện năng lực xếp hạng xác suất đáng tin cậy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/Confusion_SVM.png}
+    \vspace{0.5em}
+    \caption{Ma trận nhầm lẫn (Confusion Matrix) của mô hình SVM.}
+    \label{fig:cm_svm}
+\end{figure}
+
+Dựa trên ma trận nhầm lẫn ở Hình~\ref{fig:cm_svm}, ta thu được các giá trị sau:
+\begin{itemize}
+    \item \textbf{True Negative (TN)} = 748 — Thực tế “No Stroke”, dự đoán “No Stroke”.
+    \item \textbf{False Positive (FP)} = 224 — Thực tế “No Stroke”, dự đoán “Stroke”.
+    \item \textbf{False Negative (FN)} = 18 — Thực tế “Stroke”, dự đoán “No Stroke”.
+    \item \textbf{True Positive (TP)} = 32 — Thực tế “Stroke”, dự đoán “Stroke”.
+\end{itemize}
+
+\paragraph{Phân tích kết quả:}
+\begin{itemize}
+    \item Trong tổng số \textbf{50 ca đột quỵ thực tế} (18 + 32), mô hình phát hiện đúng 32 ca và bỏ sót 18 ca.  
+    $\Rightarrow$ \textbf{Recall} = $\frac{32}{32+18} = 0,64$ (tương đương 64\%).
+    \item Trong tổng số \textbf{256 ca được dự đoán là “Stroke”} (224 + 32), chỉ có 32 ca thực sự đúng.  
+    $\Rightarrow$ \textbf{Precision} = $\frac{32}{32+224} = 0,125$ (tương đương 12,5\%).
+    \item Tổng thể, mô hình phân loại đúng $(748 + 32) = 780$ mẫu trên tổng $(748 + 224 + 18 + 32) = 1022$ mẫu.  
+    $\Rightarrow$ \textbf{Accuracy} = $\frac{780}{1022} \approx 0,763$ (tương đương 76,3\%).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/Report_SVM.png}
+    \vspace{0.5em}
+    \caption{Báo cáo phân loại (Classification Report) của mô hình SVM.}
+    \label{fig:report_svm}
+\end{figure}
+
+\paragraph{Đánh giá chi tiết theo từng lớp:}
+
+\textbf{Đối với lớp “Stroke” (lớp dương tính):}
+\begin{itemize}
+    \item \textbf{Recall} = 0,64 — mô hình phát hiện được 64\% số ca đột quỵ thực tế, bỏ sót khoảng 36\%.
+    \item \textbf{Precision} = 0,12 — khi mô hình dự đoán “bị đột quỵ”, chỉ có 12\% trường hợp là đúng.
+    \item \textbf{F1-score} = 0,21 — phản ánh sự mất cân bằng giữa precision và recall, cho thấy mô hình còn yếu trong nhận diện ca bệnh thật.
+\end{itemize}
+
+\textbf{Đối với lớp “No Stroke” (lớp âm tính):}
+\begin{itemize}
+    \item Mô hình hoạt động khá tốt với \textbf{Precision = 0,98} và \textbf{Recall = 0,77}.
+    \item Giá trị \textbf{Negative Predictive Value (NPV)} đạt xấp xỉ \textbf{0,98}, nghĩa là khi mô hình dự đoán “không đột quỵ”, kết quả gần như chính xác.  
+    Đây là một đặc điểm quan trọng trong các hệ thống sàng lọc y tế, giúp hạn chế sai sót trong việc đánh giá bệnh nhân khỏe mạnh.
+\end{itemize}
+
+\paragraph{Tổng kết:}
+Mô hình SVM đạt AUC khá (\~ 0,80) và độ chính xác tổng thể 76,3\%, tuy nhiên vẫn gặp khó khăn trong việc nhận diện ca đột quỵ thật (precision thấp).  
+Dù vậy, giá trị \textbf{NPV cao} cho thấy mô hình có thể hữu ích trong giai đoạn sàng lọc ban đầu, giúp loại trừ an toàn các ca “không đột quỵ” và hỗ trợ bác sĩ tập trung kiểm tra kỹ hơn các trường hợp nghi ngờ.
+
+\subsection{Mô hình KNN}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/ROC_KNN.png}
+    \vspace{0.5em}
+    \caption{Đường cong ROC của mô hình KNN.}
+    \label{fig:roc_knn}
+\end{figure}
+
+Quan sát Hình~\ref{fig:roc_knn} cho thấy diện tích dưới đường cong ROC (AUC) đạt giá trị \textbf{0,609}.  
+Điều này cho thấy khả năng phân loại của mô hình ở mức \textbf{yếu}, chỉ nhỉnh hơn một chút so với mô hình ngẫu nhiên (đường chéo AUC = 0,5).  
+Nói cách khác, KNN chưa thể phân biệt rõ ràng giữa hai nhóm “Stroke” và “No Stroke”.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{image/Confusion_KNN.png}
+    \vspace{0.5em}
+    \caption{Ma trận nhầm lẫn (Confusion Matrix) của mô hình KNN.}
+    \label{fig:cm_knn}
+\end{figure}
+
+Dựa trên ma trận nhầm lẫn Hình~\ref{fig:cm_knn}, ta có các giá trị sau:
+\begin{itemize}
+    \item \textbf{True Negative (TN)} = 866 — Thực tế “No Stroke”, dự đoán “No Stroke”.
+    \item \textbf{False Positive (FP)} = 106 — Thực tế “No Stroke”, dự đoán “Stroke”.
+    \item \textbf{False Negative (FN)} = 41 — Thực tế “Stroke”, dự đoán “No Stroke”.
+    \item \textbf{True Positive (TP)} = 9 — Thực tế “Stroke”, dự đoán “Stroke”.
+\end{itemize}
+
+\paragraph{Phân tích kết quả:}
+\begin{itemize}
+    \item Trong tổng số \textbf{50 ca đột quỵ thực tế} (41 + 9), mô hình chỉ phát hiện đúng 9 ca và bỏ sót 41 ca.  
+    $\Rightarrow$ \textbf{Recall} = $\dfrac{9}{9 + 41} = 0,18$ (18\%).
+    \item Trong tổng số \textbf{115 ca được dự đoán là “Stroke”} (106 + 9), chỉ có 9 ca là chính xác.  
+    $\Rightarrow$ \textbf{Precision} = $\dfrac{9}{9 + 106} \approx 0,078$ (7,8\%).
+    \item Tổng thể, mô hình phân loại đúng $(866 + 9) = 875$ mẫu trên tổng $(866 + 106 + 41 + 9) = 1022$ mẫu.  
+    $\Rightarrow$ \textbf{Accuracy} = $\dfrac{875}{1022} \approx 0,856$ (85,6\%).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image/Report_KNN.png}
+    \vspace{0.5em}
+    \caption{Báo cáo phân loại (Classification Report) của mô hình KNN.}
+    \label{fig:report_knn}
+\end{figure}
+
+\paragraph{Đánh giá chi tiết theo từng lớp:}
+
+\textbf{Đối với lớp “Stroke” (lớp dương tính):}
+\begin{itemize}
+    \item \textbf{Recall} = 0,18 — mô hình chỉ phát hiện được 18\% số ca đột quỵ thực tế, bỏ sót tới 82\% ca bệnh.
+    \item \textbf{Precision} = 0,08 — khi mô hình dự đoán “bị đột quỵ”, chỉ có 8\% khả năng dự đoán đó là đúng.
+    \item \textbf{F1-score} = 0,11 — rất thấp, cho thấy mô hình không cân bằng được giữa precision và recall.
+\end{itemize}
+
+\textbf{Đối với lớp “No Stroke” (lớp âm tính):}
+\begin{itemize}
+    \item Mô hình hoạt động rất tốt với \textbf{Precision = 0,95} và \textbf{Recall = 0,89}.
+    \item Giá trị \textbf{Negative Predictive Value (NPV)} đạt xấp xỉ \textbf{0,95}, nghĩa là khi mô hình dự đoán “không đột quỵ”, ta có thể gần như chắc chắn rằng kết quả này chính xác.
+\end{itemize}
+
+\paragraph{Tổng kết:}
+Mô hình KNN tuy đạt \textbf{Accuracy = 85,6\%}, nhưng hiệu quả này chủ yếu đến từ việc mô hình dự đoán chính xác các mẫu “No Stroke” chiếm tỷ lệ lớn.  
+Với dữ liệu mất cân bằng mạnh, mô hình thể hiện \textbf{khả năng phát hiện ca đột quỵ kém} (Recall thấp) — điều này khiến KNN không phù hợp cho bài toán sàng lọc y tế, nơi mục tiêu chính là \textbf{giảm thiểu bỏ sót bệnh nhân thật (False Negative)}.
+
+
+\subsection{Đánh giá tổng hợp}
+
+\paragraph{Tóm tắt kết quả tổng quát}
+\begin{itemize}
+    \item \textbf{Logistic Regression:} Accuracy ở mức trung bình (0.75) nhưng đạt \textbf{recall cao nhất} cho lớp \textit{Stroke} (0.80), phù hợp cho bài toán phát hiện sớm ca dương tính. Chỉ số \textbf{ROC-AUC = 0.85} cho thấy khả năng phân biệt tốt giữa hai lớp.
+    \item \textbf{Random Forest:} Cho \textbf{accuracy cao nhất} (0.93), tuy nhiên recall rất thấp (0.14) cho lớp \textit{Stroke}, dẫn đến bỏ sót nhiều ca bệnh. Chỉ số ROC-AUC ở mức trung bình (0.76).
+    \item \textbf{SVM:} Đạt accuracy trung bình (0.76), recall khá tốt (0.64), song precision thấp (0.12) khiến số lượng dương tính giả cao. Mặc dù vậy, ROC-AUC = 0.80 cho thấy mô hình vẫn giữ khả năng phân biệt khá ổn.
+    \item \textbf{KNN:} Có accuracy cao (0.86) nhưng recall thấp (0.18), tương tự Random Forest, dễ thiên lệch về lớp đa số (\textit{No Stroke}).
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Mô hình} & \textbf{Accuracy} & \textbf{Recall} & \textbf{Precision} & \textbf{F1-score} & \textbf{ROC-AUC} \\ \hline
+Logistic Regression & 0.75 & \textbf{0.80} & 0.14 & 0.24 & \textbf{0.846} \\ \hline
+Random Forest & \textbf{0.93} & 0.14 & 0.18 & 0.16 & 0.761 \\ \hline
+SVM & 0.76 & 0.64 & 0.12 & 0.21 & 0.800 \\ \hline
+KNN & 0.86 & 0.18 & 0.08 & 0.11 & 0.609 \\ \hline
+\end{tabular}
+\caption{So sánh hiệu năng các mô hình trên tập kiểm thử}
+\label{tab:model_comparison}
+\end{table}
+
+\paragraph{Phân tích theo từng lớp}
+
+\textbf{1. Lớp “No Stroke” (lớp âm tính)}  
+Tất cả các mô hình đều đạt \textbf{precision} và \textbf{recall} cao do lớp này chiếm đa số trong dữ liệu.  
+\begin{itemize}
+    \item \textbf{Random Forest} đạt recall cao nhất (0.97), phản ánh khả năng nhận diện tốt các trường hợp không bị đột quỵ.
+    \item \textbf{Logistic Regression} có recall thấp hơn (0.75), do ưu tiên cân bằng cho lớp dương tính.
+\end{itemize}
+
+\textbf{2. Lớp “Stroke” (lớp dương tính)}  
+\begin{itemize}
+    \item \textbf{Logistic Regression} vượt trội với recall = 0.80, giúp phát hiện phần lớn các ca bệnh thật.
+    \item \textbf{SVM} đứng thứ hai (recall = 0.64), thể hiện năng lực tốt nhờ ranh giới phi tuyến (RBF kernel).
+    \item \textbf{Random Forest} và \textbf{KNN} có recall rất thấp (0.14 và 0.18), thể hiện sự thiên lệch mạnh về lớp đa số và khả năng bỏ sót cao.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Mô hình} & \textbf{Accuracy} & \textbf{Macro Precision} & \textbf{Macro Recall} & \textbf{Macro F1} & \textbf{ROC-AUC} \\ \hline
+Logistic Regression & 0.75 & 0.56 & \textbf{0.77} & 0.54 & \textbf{0.846} \\ \hline
+Random Forest & \textbf{0.93} & 0.57 & 0.55 & 0.56 & 0.761 \\ \hline
+SVM & 0.76 & 0.55 & 0.70 & 0.53 & 0.800 \\ \hline
+KNN & 0.86 & 0.52 & 0.54 & 0.52 & 0.609 \\ \hline
+\end{tabular}
+\caption{Chỉ số tổng hợp (macro average) của các mô hình}
+\label{tab:macro_comparison}
+\end{table}
+
+\paragraph{Nhận xét tổng hợp}
+\begin{itemize}
+    \item \textbf{Random Forest} có accuracy và weighted F1-score cao nhất, nhưng macro recall thấp, cho thấy thiên lệch mạnh về lớp đa số.
+    \item \textbf{Logistic Regression} cho kết quả cân bằng nhất, đặc biệt ở recall và ROC-AUC, phù hợp cho dữ liệu mất cân bằng và mục tiêu phát hiện sớm ca bệnh.
+    \item \textbf{SVM} duy trì hiệu năng ổn định nhờ học ranh giới phi tuyến, là mô hình thay thế khả thi nếu được tinh chỉnh thêm threshold.
+    \item \textbf{KNN} có độ chính xác tổng thể cao, nhưng yếu trong nhận diện ca “Stroke”, chỉ nên dùng khi kết hợp thêm kỹ thuật tái lấy mẫu (SMOTE) hoặc trọng số theo khoảng cách.
+\end{itemize}
+
+\paragraph{Kết luận}
+\begin{itemize}
+    \item Nếu \textbf{ưu tiên độ chính xác tổng thể (accuracy)}, \textbf{Random Forest} là lựa chọn tốt nhất.
+    \item Nếu \textbf{ưu tiên phát hiện bệnh nhân đột quỵ thật (recall lớp Stroke)}, \textbf{Logistic Regression} là mô hình phù hợp nhất với dữ liệu hiện tại.
+    \item Các mô hình \textbf{SVM} và \textbf{KNN} có thể cải thiện hiệu năng nếu áp dụng kỹ thuật xử lý mất cân bằng (SMOTE, class weighting, threshold tuning).
+\end{itemize}

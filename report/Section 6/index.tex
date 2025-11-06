@@ -1,0 +1,766 @@
+\section{Xây dựng mô hình}
+
+\subsection{Quy trình xây dựng mô hình}
+
+\textbf{Các bước chính:}
+\begin{enumerate}
+    \item Tiền xử lý dữ liệu (chuẩn hóa, chia train/test, cân bằng bằng SMOTE).
+    \item Lựa chọn mô hình: Logistic Regression, Random Forest, SVM, và KNN.
+    \item Tinh chỉnh siêu tham số (Hyperparameter Tuning) bằng GridSearchCV.
+    \item Đánh giá và trực quan hóa kết quả.
+\end{enumerate}
+
+\subsection{Tinh chỉnh tham số (Hyperparameter Tuning)}
+
+Nhằm tối ưu hóa hiệu năng, hai phương pháp được áp dụng:
+
+\begin{itemize}
+    \item \textbf{GridSearchCV:} thử toàn bộ không gian tham số (phù hợp khi số lượng tham số ít).
+    \item \textbf{RandomizedSearchCV:} chọn ngẫu nhiên tổ hợp tham số (hiệu quả khi không gian tìm kiếm lớn).
+\end{itemize}
+
+\subsubsection{(a) Logistic Regression}
+
+\textbf{Tham số tinh chỉnh:}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{3.5cm}|p{2.2cm}|p{6cm}|}
+\hline
+\textbf{Tham số} & \textbf{Khoảng dò} & \textbf{Giá trị chọn} & \textbf{Giải thích} \\ \hline
+\texttt{C} & [0.01, 0.1, 1, 10] & 1.0 & Điều chỉnh mức regularization ($\lambda = 1/C$). Giá trị 1.0 cho cân bằng tốt giữa bias–variance. \\ \hline
+\texttt{penalty} & ['l1', 'l2'] & 'l2' & L2 ổn định hơn khi dữ liệu có tương quan giữa các đặc trưng. \\ \hline
+\texttt{solver} & ['liblinear', 'saga'] & 'liblinear' & Phù hợp cho bài toán nhị phân kích thước trung bình. \\ \hline
+\texttt{max\_iter} & [500–1500] & 1000 & Tránh việc dừng sớm trước khi hội tụ. \\ \hline
+\end{tabular}
+\caption{Tinh chỉnh tham số Logistic Regression}
+\end{table}
+
+
+\subsubsection{(b) Random Forest}
+
+\textbf{Tham số tinh chỉnh:}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{3.5cm}|p{2.2cm}|p{6cm}|}
+\hline
+\textbf{Tham số} & \textbf{Khoảng dò} & \textbf{Giá trị chọn} & \textbf{Giải thích} \\ \hline
+\texttt{n\_estimators} & [100, 200, 300] & 200 & Số cây đủ lớn để giảm phương sai mà không tốn quá nhiều thời gian. \\ \hline
+\texttt{max\_depth} & [10, 15, 20, None] & 20 & Giới hạn độ sâu tránh overfitting. \\ \hline
+\texttt{max\_features} & ['sqrt', 'log2'] & 'sqrt' & Tăng tính ngẫu nhiên, giảm tương quan giữa các cây. \\ \hline
+\texttt{random\_state} & 42 & 42 & Giữ kết quả ổn định. \\ \hline
+\end{tabular}
+\caption{Tinh chỉnh tham số Random Forest}
+\end{table}
+
+
+\subsubsection{(c) Support Vector Machine (SVM)}
+
+\textbf{Tham số tinh chỉnh:}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{4cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Tham số} & \textbf{Khoảng dò} & \textbf{Giá trị chọn} & \textbf{Giải thích} \\ \hline
+\texttt{C} & [0.1, 1, 10] & 1.0 & Hệ số phạt margin nhỏ giúp tăng tính khái quát; lớn làm mô hình nhạy hơn với nhiễu. \\ \hline
+\texttt{kernel} & ['linear', 'rbf'] & 'rbf' & Cho phép mô hình học ranh giới phi tuyến tính. \\ \hline
+\texttt{gamma} & ['scale', 'auto'] & 'scale' & Điều chỉnh độ ảnh hưởng của từng điểm dữ liệu trong kernel RBF. \\ \hline
+\texttt{class\_weight} & [None, 'balanced'] & 'balanced' & Tự động điều chỉnh trọng số giữa hai lớp theo tỉ lệ xuất hiện. \\ \hline
+\end{tabular}
+\caption{Tinh chỉnh tham số SVM}
+\end{table}
+
+\textbf{Bước 1:} Cấu hình và huấn luyện:
+\begin{lstlisting}[language=Python]
+from sklearn.svm import SVC
+
+svm = SVC(
+    C=1.0,
+    kernel='rbf',
+    gamma='scale',
+    class_weight='balanced',
+    probability=True,
+    random_state=42
+)
+svm.fit(X_train, y_train)
+\end{lstlisting}
+
+\textbf{Bước 2:} Dự đoán và trực quan hóa:
+\begin{lstlisting}[language=Python]
+y_pred_svm = svm.predict(X_test)
+y_prob_svm = svm.predict_proba(X_test)[:, 1]
+
+print("Báo cáo phân loại SVM:")
+print(classification_report(y_test, y_pred_svm))
+print("ROC-AUC:", roc_auc_score(y_test, y_prob_svm))
+\end{lstlisting}
+
+\textbf{Trong đó:}
+\begin{itemize}
+    \item \texttt{kernel='rbf'} giúp mô hình học được ranh giới phức tạp giữa nhóm đột quỵ và không đột quỵ.
+    \item \texttt{class\_weight='balanced'} tăng trọng số cho lớp dương tính, giúp giảm bỏ sót bệnh nhân.
+    \item \texttt{C=1.0} và \texttt{gamma='scale'} là giá trị tối ưu từ GridSearchCV cho dữ liệu này.
+\end{itemize}
+
+\textbf{Kết quả:}
+\begin{itemize}
+    \item ROC-AUC ≈ 0.80
+    \item Recall lớp “Stroke”: 0.64
+    \item Accuracy ≈ 0.76
+\end{itemize}
+
+\textbf{Nhận xét:}  
+SVM cho kết quả khá tốt, cân bằng giữa recall (64\%) và accuracy (76\%).  
+Dù precision thấp, nhưng vẫn phù hợp cho bài toán phát hiện sớm bệnh nhân đột quỵ, nơi recall quan trọng hơn.
+
+\subsubsection{(d) K-Nearest Neighbors (KNN)}
+
+\textbf{Tham số tinh chỉnh:}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{4cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Tham số} & \textbf{Khoảng dò} & \textbf{Giá trị chọn} & \textbf{Giải thích} \\ \hline
+\texttt{n\_neighbors} & [3, 5, 7, 9, 11] & 5 & Số lượng láng giềng được chọn để bỏ phiếu. \\ \hline
+\texttt{weights} & ['uniform', 'distance'] & 'distance' & Mẫu gần hơn có ảnh hưởng lớn hơn khi dự đoán. \\ \hline
+\texttt{metric} & ['euclidean', 'manhattan'] & 'euclidean' & Đo khoảng cách giữa các điểm dữ liệu. \\ \hline
+\end{tabular}
+\caption{Tinh chỉnh tham số KNN}
+\end{table}
+
+\textbf{Bước 1:} Huấn luyện:
+\begin{lstlisting}[language=Python]
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier(
+    n_neighbors=5,
+    weights='distance',
+    metric='euclidean'
+)
+knn.fit(X_train, y_train)
+\end{lstlisting}
+
+\textbf{Bước 2:} Dự đoán và đánh giá:
+\begin{lstlisting}[language=Python]
+y_pred_knn = knn.predict(X_test)
+y_prob_knn = knn.predict_proba(X_test)[:, 1]
+print("ROC-AUC:", roc_auc_score(y_test, y_prob_knn))
+\end{lstlisting}
+
+\textbf{Kết quả:}
+\begin{itemize}
+    \item Accuracy = 0.86
+    \item Recall lớp “Stroke” = 0.18
+    \item ROC-AUC = 0.61
+\end{itemize}
+
+\textbf{Nhận xét:}  
+KNN thể hiện rõ hạn chế với dữ liệu mất cân bằng – chỉ dự đoán tốt lớp không bệnh.  
+Giải pháp khả thi để cải thiện:
+\begin{itemize}
+    \item Chuẩn hóa đặc trưng (đã thực hiện).  
+    \item Dùng \texttt{class\_weight} (hoặc sample\_weight khi tính khoảng cách).  
+    \item Áp dụng kỹ thuật \textbf{SMOTE + Weighted KNN}.  
+\end{itemize}
+
+\subsection{Triển khai huấn luyện mô hình}
+
+Sau khi xác định siêu tham số, nhóm tiến hành huấn luyện hai mô hình:
+
+\subsubsection{(a) Logistic Regression}
+
+\textbf{Bước 1:} Cấu hình huấn luyện theo các tham số đã được tinh chỉnh:
+\begin{lstlisting}[language=Python]
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+log_reg = LogisticRegression(
+    C=1.0,              # Độ mạnh regularization, giá trị nhỏ hơn -> phạt mạnh hơn -> tránh overfitting
+    penalty="l2",       # Ridge regularization
+    solver="liblinear", # Phù hợp với dữ liệu nhị phân và vừa phải
+    max_iter=1000,      
+    random_state=42
+)
+log_reg.fit(X_train, y_train)
+\end{lstlisting}
+
+\textbf{Bước 2:} Dự đoán và trực quan hoá:
+\begin{lstlisting}[language=Python]
+y_pred = log_reg.predict(X_test)
+y_prob = log_reg.predict_proba(X_test)[:, 1]
+
+print("Báo cáo phân loại Logistic Regression:")
+print(classification_report(y_test, y_pred))
+print("ROC-AUC:", roc_auc_score(y_test, y_prob))
+
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+plt.plot(fpr, tpr, label=f"LogReg (AUC={roc_auc_score(y_test, y_prob):.2f})")
+plt.plot([0,1],[0,1],"--")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.legend()
+plt.show()
+
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix - Logistic Regression")
+plt.show()
+\end{lstlisting}
+
+\textbf{Trong đó:}
+\begin{itemize}
+    \item \texttt{C = 1.0}: là tham số nghịch đảo của độ mạnh regularization ($\lambda = 1/C$). 
+    \begin{itemize}
+        \item Giá trị nhỏ hơn 1 $\rightarrow$ regularization mạnh hơn $\rightarrow$ giảm overfitting, nhưng có thể làm giảm khả năng khớp dữ liệu.
+        \item Giá trị lớn hơn 1 $\rightarrow$ mô hình linh hoạt hơn, dễ overfit nếu dữ liệu nhiễu.
+    \end{itemize}
+
+    \item \texttt{penalty = "l2"}: sử dụng Ridge Regularization, thêm vào hàm mất mát một phần tử $\sum_j \beta_j^2$ giúp phạt các trọng số lớn và ổn định mô hình, đặc biệt khi có hiện tượng đa cộng tuyến giữa các đặc trưng.
+
+    \item \texttt{solver = "liblinear"}: thuật toán tối ưu phù hợp cho bài toán nhị phân và dữ liệu vừa phải. 
+    Liblinear sử dụng phương pháp \textit{coordinate descent} để giải bài toán logistic với ràng buộc L2.
+
+    \item \texttt{max\_iter = 1000}: số lần lặp tối đa trong quá trình tối ưu. 
+    Giá trị cao hơn giúp mô hình đảm bảo hội tụ khi dữ liệu phức tạp hoặc chưa được chuẩn hóa tốt.
+
+    \item \texttt{fit(X\_train, y\_train)}: thực hiện quá trình tối ưu hàm mất mát Binary Cross-Entropy (Log Loss).
+
+    \item \texttt{predict()}: trả về nhãn lớp (0 hoặc 1) dựa trên ngưỡng mặc định 0.5 của xác suất dự đoán.
+
+    \item \texttt{predict\_proba()}: trả về xác suất dự đoán cho mỗi lớp, được sử dụng để tính chỉ số ROC-AUC — đo lường khả năng mô hình phân biệt hai lớp ở nhiều ngưỡng khác nhau.
+
+    \item \texttt{roc\_curve()}: biểu diễn đường cong ROC (Receiver Operating Characteristic), cho biết mối quan hệ giữa TPR (True Positive Rate) và FPR (False Positive Rate).
+
+    \item \texttt{confusion\_matrix()}: thể hiện số lượng dự đoán đúng và sai giữa hai lớp, giúp nhận diện xu hướng bỏ sót (False Negatives) hoặc dự đoán sai dương tính (False Positives).
+
+    \item \texttt{sns.heatmap()}: trực quan hóa ma trận nhầm lẫn giúp quan sát trực quan độ chính xác của mô hình.
+\end{itemize}
+
+
+\subsubsection{(b) Random Forest}
+
+Mô hình gồm 200 cây quyết định độc lập, mỗi cây được huấn luyện trên một bootstrap sample của tập huấn luyện và chỉ xét $\sqrt{n_{\text{features}}}$ tại mỗi nút chia.
+
+\textbf{Bước 1:} Cấu hình huấn luyện theo các tham số đã được tinh chỉnh:
+\begin{lstlisting}[language=Python]
+from sklearn.ensemble import RandomForestClassifier
+
+rf = RandomForestClassifier(
+    n_estimators=200,   # Số cây trong rừng
+    max_depth=20,       # Giới hạn độ sâu cây để tránh overfitting
+    max_features="sqrt",# Giảm tương quan giữa các cây
+    random_state=42
+)
+rf.fit(X_train, y_train)
+\end{lstlisting}
+
+\textbf{Bước 2:} Dự đoán và trực quan hoá:
+\begin{lstlisting}[language=Python]
+y_pred_rf = rf.predict(X_test)
+y_prob_rf = rf.predict_proba(X_test)[:, 1]
+
+print("Báo cáo phân loại Random Forest:")
+print(classification_report(y_test, y_pred_rf))
+print("ROC-AUC:", roc_auc_score(y_test, y_prob_rf))
+
+fpr, tpr, _ = roc_curve(y_test, y_prob_rf)
+plt.plot(fpr, tpr, label=f"RandomForest (AUC={roc_auc_score(y_test, y_prob_rf):.2f})")
+plt.plot([0,1],[0,1],"--")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.legend()
+plt.show()
+
+cm_rf = confusion_matrix(y_test, y_pred_rf)
+sns.heatmap(cm_rf, annot=True, fmt="d", cmap="Greens")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix - Random Forest")
+plt.show()
+\end{lstlisting}
+
+\textbf{Trong đó:}
+\begin{itemize}
+    \item \texttt{n\_estimators = 200}: xác định số lượng cây quyết định (Decision Trees) trong mô hình. 
+    Số lượng cây lớn giúp giảm phương sai và tăng độ ổn định của dự đoán, tuy nhiên sẽ làm tăng thời gian huấn luyện.
+
+    \item \texttt{max\_depth = 20}: giới hạn độ sâu tối đa của từng cây nhằm kiểm soát overfitting — 
+    tránh việc các cây học quá chi tiết dữ liệu huấn luyện dẫn đến kém khả năng khái quát.
+
+    \item \texttt{max\_features = "sqrt"}: tại mỗi nút chia, chỉ chọn ngẫu nhiên $\sqrt{\text{(số đặc trưng)}}$ để xét. 
+    Cách này giúp tăng tính ngẫu nhiên, giảm tương quan giữa các cây, nhờ đó mô hình tổng thể kháng nhiễu và tổng quát tốt hơn.
+
+    \item \texttt{fit(X\_train, y\_train)}: thực hiện quá trình \textbf{Bagging} (Bootstrap Aggregating), 
+    trong đó mỗi cây được huấn luyện trên một mẫu dữ liệu ngẫu nhiên có hoàn lại. 
+    Điều này giúp giảm phương sai và tăng độ ổn định của mô hình tổng thể.
+
+    \item \texttt{predict\_proba()}: trả về xác suất trung bình được tổng hợp từ tất cả các cây trong rừng. 
+    Giá trị này được sử dụng để tính chỉ số ROC-AUC, phản ánh khả năng mô hình phân biệt giữa hai lớp.
+
+    \item \texttt{roc\_curve()}: mô tả mối quan hệ giữa \textbf{True Positive Rate (TPR)} và \textbf{False Positive Rate (FPR)} 
+    tại các ngưỡng dự đoán khác nhau, thể hiện khả năng phân biệt lớp của mô hình.
+
+    \item \texttt{confusion\_matrix()}: thể hiện phân bố giữa các dự đoán đúng và sai, 
+    giúp đánh giá chi tiết hiệu quả của mô hình trên từng lớp.
+
+    \item \texttt{sns.heatmap()}: trực quan hóa \textbf{ma trận nhầm lẫn (Confusion Matrix)} bằng bản đồ màu, 
+    trong đó màu đậm biểu thị tần suất cao hơn của các dự đoán tương ứng.
+\end{itemize}
+\subsubsection{(c) Support Vector Machine (SVM)}
+
+Mô hình \textbf{SVM (Support Vector Machine)} được xây dựng nhằm tối ưu cho độ nhạy (recall) nhằm giảm thiểu số lượng ca đột quỵ bị bỏ sót – điều rất quan trọng trong ứng dụng y tế..
+
+\textbf{Bước 1:} Chuẩn hóa và tinh chỉnh tham số:
+\begin{lstlisting}[language=Python]
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+param_grid = {
+    'C': [0.1, 1, 10],
+    'kernel': ['rbf', 'linear'],
+    'gamma': ['scale', 'auto'],
+    'class_weight': ['balanced', {0:1, 1:3}]
+}
+
+svm = SVC(random_state=42, probability=True)
+grid = GridSearchCV(svm, param_grid, scoring='recall', cv=3, n_jobs=-1)
+grid.fit(X_train_scaled, y_train)
+
+print("Best parameters:", grid.best_params_)
+\end{lstlisting}
+
+\textbf{Bước 2:} Huấn luyện và đánh giá mô hình:
+\begin{lstlisting}[language=Python]
+class StrokeSVMModel:
+    def __init__(self, scoring_metric='recall', decision_threshold=0.5):
+        self.model = None
+        self.scaler = StandardScaler()
+        self.best_params = None
+        self.training_time = None
+        self.prediction_time = None
+        self.scoring_metric = scoring_metric
+        self.decision_threshold = decision_threshold
+        
+        print(f"Grid search scoring metric: {self.scoring_metric}")
+        print(f"Default decision threshold: {self.decision_threshold:.2f}")
+    
+    def set_decision_threshold(self, threshold):
+        """Update the decision threshold used for converting probabilities to labels."""
+        self.decision_threshold = threshold
+        print(f"Decision threshold updated to {self.decision_threshold:.2f}")
+    
+    def preprocess_data(self, X_train, X_test):
+        """Standardize features for SVM training and inference."""
+        print("Preprocessing data with standardization...")
+        start_time = time.time()
+        
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
+        
+        preprocessing_time = time.time() - start_time
+        print(f"Preprocessing completed in {preprocessing_time:.3f} seconds")
+        
+        return X_train_scaled, X_test_scaled
+    
+    def hyperparameter_tuning(self, X_train, y_train, scoring_metric=None):
+        """Perform hyperparameter tuning using GridSearchCV."""
+        
+        metric = scoring_metric or self.scoring_metric
+        print(f"Using {metric} as the tuning metric")
+        
+        
+        param_grid = {
+            'C': [0.1, 1, 10],
+            'kernel': ['rbf', 'linear'],
+            'gamma': ['scale', 'auto'],
+            'class_weight': ['balanced', {0: 1, 1: 3}]
+        }
+        print("Using quick search parameter grid")
+        
+        svm = SVC(random_state=42, probability=True)
+        grid_search = GridSearchCV(svm, param_grid, cv=3, scoring=metric, n_jobs=-1, verbose=1)
+        
+        start_time = time.time()
+        grid_search.fit(X_train, y_train)
+        tuning_time = time.time() - start_time
+        
+        self.best_params = grid_search.best_params_
+        
+        print(f"\nHyperparameter tuning completed in {tuning_time:.2f} seconds")
+        print(f"Best parameters: {self.best_params}")
+        print(f"Best cross-validation {metric}: {grid_search.best_score_:.4f}")
+        
+        return self.best_params
+    
+    def train_model(self, X_train, y_train, use_tuning=True, quick_search=False):
+        """Train the SVM model with optional hyperparameter tuning."""
+        
+        if use_tuning:
+            self.hyperparameter_tuning(X_train, y_train, quick_search)
+        
+        start_time = time.time()
+        
+        if self.best_params:
+            self.model = SVC(**self.best_params, random_state=42, probability=True)
+        else:
+            self.model = SVC(
+                kernel='rbf', C=1.0, gamma='scale', class_weight='balanced',
+                random_state=42, probability=True
+            )
+        
+        self.model.fit(X_train, y_train)
+        self.training_time = time.time() - start_time
+        
+        print(f"Model training completed in {self.training_time:.3f} seconds")
+    
+    def evaluate_model(self, X_test, y_test, threshold=None):
+        """Evaluate the trained model on test data."""
+        
+        if threshold is None:
+            threshold = self.decision_threshold
+        
+        start_time = time.time()
+        y_pred_proba = self.model.predict_proba(X_test)[:, 1]
+        y_pred = (y_pred_proba >= threshold).astype(int)
+        self.prediction_time = time.time() - start_time
+        
+        metrics = {
+            'accuracy': accuracy_score(y_test, y_pred),
+            'precision': precision_score(y_test, y_pred),
+            'recall': recall_score(y_test, y_pred),
+            'f1_score': f1_score(y_test, y_pred),
+            'roc_auc': roc_auc_score(y_test, y_pred_proba),
+            'training_time': self.training_time,
+            'prediction_time': self.prediction_time,
+            'threshold': threshold
+        }
+        
+        return metrics, y_pred, y_pred_proba
+\end{lstlisting}
+
+\paragraph{Các thành phần chính của lớp \texttt{StrokeSVMModel}}
+\begin{itemize}
+    \item \textbf{\_\_init\_\_():} Khởi tạo đối tượng và các thành phần cốt lõi:
+    \begin{itemize}
+        \item \texttt{self.scaler}: Bộ chuẩn hóa dữ liệu (\texttt{StandardScaler}) giúp các đặc trưng có cùng thang đo – yếu tố quan trọng trong SVM.
+        \item \texttt{self.model}: Đối tượng SVM được khởi tạo và huấn luyện sau này.
+        \item \texttt{self.best\_params}: Lưu lại bộ siêu tham số tối ưu từ quá trình Grid Search.
+        \item \texttt{self.training\_time}, \texttt{self.prediction\_time}: Ghi nhận thời gian huấn luyện và dự đoán, phục vụ đánh giá hiệu năng.
+        \item \texttt{self.scoring\_metric}: Tiêu chí đánh giá trong quá trình tuning (mặc định: \texttt{recall}).
+        \item \texttt{self.decision\_threshold}: Ngưỡng xác suất chuyển thành nhãn 0/1 (mặc định 0.5, có thể điều chỉnh để tăng độ nhạy).
+    \end{itemize}
+
+    \item \textbf{set\_decision\_threshold():}  
+    Cho phép thay đổi ngưỡng quyết định mà mô hình sử dụng để chuyển xác suất (\texttt{predict\_proba}) thành nhãn phân loại.  
+    Giảm ngưỡng (ví dụ 0.3) giúp tăng số ca được dự đoán là “nguy cơ đột quỵ”, từ đó cải thiện \textbf{recall}.
+
+    \item \textbf{preprocess\_data():}  
+    Chuẩn hóa dữ liệu huấn luyện và kiểm thử bằng \texttt{StandardScaler}, đảm bảo trung bình = 0 và độ lệch chuẩn = 1 cho mọi đặc trưng.  
+    Quá trình này giúp SVM hoạt động ổn định hơn, đặc biệt khi các đặc trưng có đơn vị khác nhau.
+
+    \item \textbf{hyperparameter\_tuning():}  
+    Tự động tìm kiếm tổ hợp siêu tham số tốt nhất bằng \texttt{GridSearchCV}, với các tham số:
+    \begin{itemize}
+        \item \texttt{C}: Hệ số phạt, điều chỉnh độ cứng/mềm của biên phân tách.
+        \item \texttt{kernel}: Loại hàm nhân (\texttt{linear}, \texttt{rbf}).
+        \item \texttt{gamma}: Mức ảnh hưởng của từng điểm dữ liệu trong RBF kernel.
+        \item \texttt{class\_weight}: Cân bằng dữ liệu giữa hai lớp (đặc biệt quan trọng vì dữ liệu đột quỵ mất cân bằng).
+    \end{itemize}
+    Mặc định sử dụng \texttt{scoring='recall'} để ưu tiên khả năng phát hiện ca bệnh thật.
+
+    \item \textbf{train\_model():}  
+    Huấn luyện mô hình SVM trên dữ liệu đã chuẩn hóa.
+    \begin{itemize}
+        \item Nếu \texttt{use\_tuning=True}, mô hình sẽ tự động gọi \texttt{hyperparameter\_tuning()} để chọn tham số tối ưu.
+        \item Nếu \texttt{use\_tuning=False}, mô hình huấn luyện nhanh với cấu hình mặc định.
+    \end{itemize}
+    Các bước chính gồm:
+    \begin{enumerate}
+        \item Lấy bộ tham số tối ưu (nếu có).
+        \item Tạo đối tượng \texttt{SVC} với \texttt{probability=True} để hỗ trợ dự đoán xác suất.
+        \item Huấn luyện trên tập \texttt{X\_train, y\_train}.
+        \item Ghi lại thời gian huấn luyện (\texttt{training\_time}).
+    \end{enumerate}
+
+    \item \textbf{evaluate\_model():}  
+    Đánh giá mô hình trên tập kiểm thử:
+    \begin{itemize}
+        \item Dự đoán xác suất lớp 1 (\texttt{y\_pred\_proba}) và chuyển thành nhãn 0/1 dựa trên \texttt{decision\_threshold}.
+        \item Tính các chỉ số:
+        \begin{itemize}
+            \item \textbf{Accuracy:} Tỷ lệ dự đoán đúng.
+            \item \textbf{Precision:} Độ chính xác của dự đoán ca bệnh.
+            \item \textbf{Recall:} Khả năng phát hiện ca bệnh thật (ưu tiên cao nhất).
+            \item \textbf{F1-score:} Trung bình điều hòa giữa Precision và Recall.
+            \item \textbf{ROC-AUC:} Khả năng phân tách tổng quát giữa hai lớp.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{(d) K-Nearest Neighbors (KNN)}
+
+Mô hình \textbf{KNN} được thiết kế nhằm tối ưu Recall – 
+ưu tiên phát hiện đúng các ca dương tính (Stroke), giảm thiểu bỏ sót.
+
+\textbf{Bước 1:} Tinh chỉnh tham số:
+\begin{lstlisting}[language=Python]
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+
+param_grid = {
+    'n_neighbors': [3, 5, 7, 9, 11, 15, 21, 31],
+    'weights': ['uniform', 'distance'],
+    'metric': ['euclidean', 'manhattan', 'minkowski']
+}
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+grid = GridSearchCV(
+    KNeighborsClassifier(), param_grid,
+    scoring='recall', cv=cv, n_jobs=-1
+)
+grid.fit(X_train, y_train)
+
+print("Best parameters:", grid.best_params_)
+\end{lstlisting}
+
+\textbf{Bước 2:} Huấn luyện và đánh giá mô hình:
+\begin{lstlisting}[language=Python]
+class KNNModel:
+    """
+    Recall-Optimized KNN Classifier for Stroke Detection
+    ----------------------------------------------------
+    Performs:
+      - Hyperparameter tuning (GridSearchCV, recall-optimized)
+      - Evaluation on train/test sets
+      - Result analysis (k-value, confusion matrix, recall/specificity metrics)
+    """
+
+    def __init__(self, cv_folds=5, n_jobs=-1):
+        self.cv_folds = cv_folds
+        self.n_jobs = n_jobs
+        self.best_knn = None
+        self.best_params = None
+        self.grid_search_results = None
+        self.results_df = None
+        self.evaluation_metrics = None
+        self.k_performance = None
+        self.classification_summary = None
+        self.confusion_matrix = None
+
+    # --------------------------
+    # Step 1: Hyperparameter tuning
+    # --------------------------
+    def tune_hyperparameters(self, X_train, y_train):
+        param_grid = [
+            {
+                'n_neighbors': [3, 5, 7, 9, 11, 15, 21, 31],
+                'weights': ['uniform', 'distance'],
+                'metric': ['euclidean', 'manhattan']
+            },
+            {
+                'n_neighbors': [3, 5, 7, 9, 11, 15, 21, 31],
+                'weights': ['uniform', 'distance'],
+                'metric': ['minkowski'],
+                'p': [1, 2]
+            }
+        ]
+
+        knn = KNeighborsClassifier()
+        cv = StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=42)
+
+        grid_search = GridSearchCV(
+            estimator=knn,
+            param_grid=param_grid,
+            cv=cv,
+            scoring='recall',
+            n_jobs=self.n_jobs,
+            verbose=0,
+            return_train_score=True
+        )
+
+        start_time = time.time()
+        grid_search.fit(X_train, y_train)
+        duration = time.time() - start_time
+
+        self.best_knn = grid_search.best_estimator_
+        self.best_params = grid_search.best_params_
+        self.grid_search_results = grid_search
+        self.results_df = pd.DataFrame(grid_search.cv_results_)
+
+        # K performance summary
+        self.k_performance = self.results_df.groupby(
+            self.results_df['param_n_neighbors']
+        )['mean_test_score'].agg(['mean', 'std', 'max']).reset_index()
+
+        return {
+            "best_recall": grid_search.best_score_,
+            "best_params": grid_search.best_params_,
+            "duration_sec": round(duration, 2)
+        }
+
+    # --------------------------
+    # Step 2: Model evaluation
+    # --------------------------
+    def evaluate(self, X_train, y_train, X_test, y_test):
+        if self.best_knn is None:
+            raise ValueError("Please run tune_hyperparameters() before evaluate().")
+
+        model = self.best_knn
+        start_time = time.time()
+
+        y_train_pred = model.predict(X_train)
+        y_test_pred = model.predict(X_test)
+        y_train_proba = model.predict_proba(X_train)[:, 1]
+        y_test_proba = model.predict_proba(X_test)[:, 1]
+
+        duration = time.time() - start_time
+
+        metrics = {
+            'train_accuracy': accuracy_score(y_train, y_train_pred),
+            'test_accuracy': accuracy_score(y_test, y_test_pred),
+            'train_precision': precision_score(y_train, y_train_pred),
+            'test_precision': precision_score(y_test, y_test_pred),
+            'train_recall': recall_score(y_train, y_train_pred),
+            'test_recall': recall_score(y_test, y_test_pred),
+            'train_f1': f1_score(y_train, y_train_pred),
+            'test_f1': f1_score(y_test, y_test_pred),
+            'train_auc': roc_auc_score(y_train, y_train_proba),
+            'test_auc': roc_auc_score(y_test, y_test_proba),
+            'prediction_time': duration
+        }
+
+        # Confusion matrix and derived metrics
+        cm = confusion_matrix(y_test, y_test_pred)
+        tn, fp, fn, tp = cm.ravel()
+
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        ppv = tp / (tp + fp) if (tp + fp) > 0 else 0
+        npv = tn / (tn + fn) if (tn + fn) > 0 else 0
+
+        metrics.update({
+            'false_negatives': fn,
+            'true_positives': tp,
+            'specificity': specificity,
+            'sensitivity': sensitivity,
+            'ppv': ppv,
+            'npv': npv
+        })
+
+        # Classification summary
+        self.classification_summary = classification_report(
+            y_test, y_test_pred, target_names=['No Stroke', 'Stroke'], output_dict=True
+        )
+        self.confusion_matrix = cm
+        self.evaluation_metrics = metrics
+
+        return metrics
+
+    # --------------------------
+    # Step 3: Extract analysis results
+    # --------------------------
+    def get_top_results(self, top_n=10):
+        if self.results_df is None:
+            raise ValueError("No results available. Run tune_hyperparameters() first.")
+
+        top_results = self.results_df.nlargest(top_n, 'mean_test_score')[[
+            'params', 'mean_test_score', 'std_test_score', 'mean_fit_time'
+        ]]
+        return top_results.reset_index(drop=True)
+
+    def get_k_performance(self):
+        if self.k_performance is None:
+            raise ValueError("No k performance data. Run tune_hyperparameters() first.")
+        return self.k_performance
+
+    def get_classification_summary(self):
+        if self.classification_summary is None:
+            raise ValueError("No evaluation performed. Run evaluate() first.")
+        return pd.DataFrame(self.classification_summary).T
+
+    def get_confusion_matrix(self):
+        if self.confusion_matrix is None:
+            raise ValueError("No confusion matrix. Run evaluate() first.")
+        return pd.DataFrame(
+            self.confusion_matrix,
+            index=['Actual No Stroke', 'Actual Stroke'],
+            columns=['Predicted No Stroke', 'Predicted Stroke']
+        )
+\end{lstlisting}
+
+
+\paragraph{Mục tiêu}
+Lớp \texttt{KNNModel} được thiết kế nhằm triển khai, tinh chỉnh và đánh giá mô hình \textbf{K-Nearest Neighbors (KNN)} trong bài toán phát hiện nguy cơ đột quỵ.  
+Mô hình được tối ưu hóa theo \textbf{Recall} — tức là ưu tiên khả năng phát hiện đúng các ca dương tính (Stroke), giảm thiểu \textbf{False Negative} (các trường hợp đột quỵ thật bị bỏ sót trong dự đoán).
+
+\paragraph{Các thành phần chính của lớp \texttt{KNNModel}}
+
+\begin{itemize}
+    \item \textbf{\_\_init\_\_():} Khởi tạo các thuộc tính cần thiết cho mô hình:
+    \begin{itemize}
+        \item \texttt{cv\_folds}: số lượng lần chia gấp cho kiểm định chéo (\textit{cross-validation}).
+        \item \texttt{n\_jobs}: số luồng xử lý song song (mặc định \texttt{-1} để sử dụng toàn bộ CPU).
+        \item \texttt{best\_knn}, \texttt{best\_params}: mô hình và bộ tham số tối ưu.
+        \item \texttt{grid\_search\_results}, \texttt{results\_df}: toàn bộ kết quả thu được từ quá trình Grid Search.
+        \item \texttt{evaluation\_metrics}, \texttt{classification\_summary}, \texttt{confusion\_matrix}: các chỉ số đánh giá và báo cáo sau khi huấn luyện.
+    \end{itemize}
+
+    \item \textbf{tune\_hyperparameters():}  
+    Mục tiêu: tìm bộ tham số tốt nhất cho KNN nhằm \textbf{tối đa hóa Recall}.  
+    Quá trình này sử dụng \texttt{GridSearchCV} với các tham số:
+    \begin{itemize}
+        \item \texttt{n\_neighbors}: số lượng láng giềng được xem xét (3 → 31).
+        \item \texttt{weights}: cách tính trọng số giữa các láng giềng (\texttt{uniform}, \texttt{distance}).
+        \item \texttt{metric}: loại khoảng cách (\texttt{euclidean}, \texttt{manhattan}, \texttt{minkowski}).
+        \item \texttt{p}: bậc khoảng cách Minkowski (1 hoặc 2).
+    \end{itemize}
+    Dữ liệu được chia gấp bằng \texttt{StratifiedKFold} để đảm bảo tỷ lệ lớp đồng đều giữa các tập.  
+    Sau khi huấn luyện, mô hình ghi lại:
+    \begin{itemize}
+        \item \texttt{best\_knn}: mô hình tốt nhất.
+        \item \texttt{best\_params}: bộ tham số tương ứng.
+        \item \texttt{results\_df}: kết quả chi tiết của quá trình tìm kiếm.
+        \item \texttt{k\_performance}: thống kê hiệu suất trung bình và độ lệch chuẩn theo từng giá trị $k$.
+    \end{itemize}
+
+    \textbf{Ví dụ kết quả tối ưu:}
+    \[
+        \text{Best parameters} = \{\texttt{metric='euclidean'},\ \texttt{n\_neighbors=5},\ \texttt{p=1},\ \texttt{weights='distance'}\}
+    \]
+
+    \item \textbf{evaluate():}  
+    Sau khi có mô hình tối ưu, phương thức này đánh giá hiệu năng trên tập huấn luyện và tập kiểm thử.  
+    Các bước thực hiện:
+    \begin{itemize}
+        \item Dự đoán nhãn (\texttt{predict}) và xác suất (\texttt{predict\_proba}).
+        \item Tính các chỉ số đánh giá:
+        \begin{itemize}
+            \item \textbf{Accuracy}: độ chính xác tổng thể.
+            \item \textbf{Recall}: khả năng phát hiện ca bệnh thật – chỉ số được ưu tiên tối ưu.
+            \item \textbf{Precision}: tỷ lệ đúng trong các dự đoán dương tính.
+            \item \textbf{F1-score}: trung bình điều hòa giữa Precision và Recall.
+            \item \textbf{ROC-AUC}: diện tích dưới đường cong ROC.
+        \end{itemize}
+        \item Tạo \textbf{Ma trận nhầm lẫn (Confusion Matrix)} gồm:
+        \[
+            \text{TP: True Positive},\ 
+            \text{FN: False Negative},\ 
+            \text{TN: True Negative},\ 
+            \text{FP: False Positive}
+        \]
+    \end{itemize}
+\end{itemize}
