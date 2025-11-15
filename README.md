@@ -560,6 +560,10 @@ pip install pylint
 
 ## Team Collaboration
 
+Tran The Nhan
+Ho Thanh Nha
+Dang Minh Nhat
+
 ### Branch Strategy
 
 ```
