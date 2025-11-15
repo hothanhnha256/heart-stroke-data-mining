@@ -245,12 +245,12 @@ def categorical_analysis(df):
     
     # Add summary text in the empty space
     summary_text = (
-        "📊 Key Insights:\n\n"
-        "• Người cao tuổi có nguy cơ cao hơn\n"
-        "• Tình trạng hôn nhân liên quan đến tuổi\n"
-        "• Self-employed có tỷ lệ cao nhất\n"
-        "• Formerly smoked: nguy cơ tăng\n"
-        "• Nơi cư trú: không ảnh hưởng nhiều"
+        "Key Insights:\n\n"
+        "- Người cao tuổi có nguy cơ cao hơn\n"
+        "- Tình trạng hôn nhân liên quan đến tuổi\n"
+        "- Self-employed có tỷ lệ cao nhất\n"
+        "- Formerly smoked: nguy cơ tăng\n"
+        "- Nơi cư trú: không ảnh hưởng nhiều"
     )
     ax6.text(0.1, 0.5, summary_text, fontsize=11, 
             color=COLORS['primary'], weight='bold',

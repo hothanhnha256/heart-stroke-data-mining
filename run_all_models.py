@@ -41,7 +41,7 @@ class ModelRunner:
         
     def load_data(self):
         """Load train/test data"""
-        print("📁 Loading preprocessed data...")
+        print("Loading preprocessed data...")
         train = pd.read_csv(f"{self.data_dir}/train_preprocessed.csv")
         test = pd.read_csv(f"{self.data_dir}/test_preprocessed.csv")
         
@@ -50,13 +50,13 @@ class ModelRunner:
         self.X_test = test.drop("stroke", axis=1)
         self.y_test = test["stroke"]
         
-        print(f"   ✓ Train: {len(self.X_train)} samples")
-        print(f"   ✓ Test: {len(self.X_test)} samples")
-        print(f"   ✓ Features: {self.X_train.shape[1]}\n")
+        print(f"   Train: {len(self.X_train)} samples")
+        print(f"   Test: {len(self.X_test)} samples")
+        print(f"   Features: {self.X_train.shape[1]}\n")
         
     def evaluate_model(self, model, model_name):
         """Đánh giá một model và lưu kết quả"""
-        print(f"🤖 Training {model_name}...")
+        print(f"Training {model_name}...")
         
         # Train
         model.fit(self.X_train, self.y_train)
@@ -80,10 +80,10 @@ class ModelRunner:
         }
         
         # Print results
-        print(f"   ✓ Accuracy:  {results['accuracy']:.4f}")
-        print(f"   ✓ Precision: {results['precision']:.4f}")
-        print(f"   ✓ Recall:    {results['recall']:.4f}")
-        print(f"   ✓ F1-Score:  {results['f1_score']:.4f}")
+        print(f"   Accuracy:  {results['accuracy']:.4f}")
+        print(f"   Precision: {results['precision']:.4f}")
+        print(f"   Recall:    {results['recall']:.4f}")
+        print(f"   F1-Score:  {results['f1_score']:.4f}")
         if results['roc_auc']:
             print(f"   ✓ ROC-AUC:   {results['roc_auc']:.4f}")
         print()
@@ -94,7 +94,7 @@ class ModelRunner:
     def run_all_models(self):
         """Chạy tất cả models"""
         print("=" * 60)
-        print("🚀 RUNNING ALL MODELS - STROKE PREDICTION")
+        print("RUNNING ALL MODELS - STROKE PREDICTION")
         print("=" * 60)
         print()
         
@@ -137,7 +137,7 @@ class ModelRunner:
         self.evaluate_model(knn, "KNN (k=5)")
         
         print("=" * 60)
-        print("✅ ALL MODELS COMPLETED")
+        print("ALL MODELS COMPLETED")
         print("=" * 60)
         print()
         
@@ -155,14 +155,14 @@ class ModelRunner:
             for name, res in self.results.items()
         ])
         
-        print("\n📊 MODEL COMPARISON TABLE")
+        print("\nMODEL COMPARISON TABLE")
         print("=" * 80)
         print(df.to_string(index=False))
         print("=" * 80)
         
         # Save to CSV
         df.to_csv('models/model_comparison_results.csv', index=False)
-        print("\n💾 Saved to: models/model_comparison_results.csv")
+        print("\nSaved to: models/model_comparison_results.csv")
 
         return df
         
@@ -187,7 +187,7 @@ class ModelRunner:
         plt.tight_layout()
 
         plt.savefig('models/model_roc_curves_comparison.png', dpi=300, bbox_inches='tight')
-        print("📈 ROC curves saved to: models/model_roc_curves_comparison.png")
+        print("ROC curves saved to: models/model_roc_curves_comparison.png")
         plt.show()
         
     def plot_metrics_comparison(self):
@@ -217,7 +217,7 @@ class ModelRunner:
         plt.tight_layout()
 
         plt.savefig('models/model_metrics_comparison.png', dpi=300, bbox_inches='tight')
-        print("📊 Metrics comparison saved to: models/model_metrics_comparison.png")
+        print("Metrics comparison saved to: models/model_metrics_comparison.png")
         plt.show()
         
     def plot_confusion_matrices(self):
@@ -241,7 +241,7 @@ class ModelRunner:
         
         plt.tight_layout()
         plt.savefig('models/model_confusion_matrices.png', dpi=300, bbox_inches='tight')
-        print("🔢 Confusion matrices saved to: models/model_confusion_matrices.png")
+        print("Confusion matrices saved to: models/model_confusion_matrices.png")
         plt.show()
         
     def generate_report(self):
@@ -342,7 +342,7 @@ def main():
     runner.run_all_models()
     
     # Tạo visualizations và reports
-    print("\n📊 Creating visualizations and reports...\n")
+    print("\nCreating visualizations and reports...\n")
     runner.create_comparison_table()
     runner.plot_roc_curves()
     runner.plot_metrics_comparison()
@@ -350,15 +350,15 @@ def main():
     runner.generate_report()
     
     print("\n" + "=" * 80)
-    print("✅ ALL TASKS COMPLETED!")
+    print("ALL TASKS COMPLETED!")
     print("=" * 80)
     print("\nOutput files:")
-    print("  📄 models/models_final_report.txt - Detailed text report")
-    print("  📄 models/models_results.json - JSON results")
-    print("  📊 models/model_comparison_results.csv - Comparison table")
-    print("  📈 models/model_roc_curves_comparison.png - ROC curves")
-    print("  📊 models/model_metrics_comparison.png - Metrics bar chart")
-    print("  🔢 models/model_confusion_matrices.png - Confusion matrices")
+    print("  models/models_final_report.txt - Detailed text report")
+    print("  models/models_results.json - JSON results")
+    print("  models/model_comparison_results.csv - Comparison table")
+    print("  models/model_roc_curves_comparison.png - ROC curves")
+    print("  models/model_metrics_comparison.png - Metrics bar chart")
+    print("  models/model_confusion_matrices.png - Confusion matrices")
     print("\n")
 
 

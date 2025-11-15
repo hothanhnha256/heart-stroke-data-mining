@@ -1,14 +1,10 @@
-# 🏥 Heart Stroke Prediction - Data Mining Project
+# Heart Stroke Prediction - Data Mining Project
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.4.2-orange.svg)](https://scikit-learn.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-
-Dự án **Data Mining hoàn chỉnh** để dự đoán nguy cơ đột quỵ (stroke) dựa trên dữ liệu y tế và nhân khẩu học, sử dụng Machine Learning.
+Dự án Data Mining hoàn chỉnh để dự đoán nguy cơ đột quỵ (stroke) dựa trên dữ liệu y tế và nhân khẩu học, sử dụng Machine Learning.
 
 ---
 
-## � **Dataset Overview**
+## Dataset Overview
 
 - **Nguồn**: Healthcare Dataset Stroke Data (Kaggle)
 - **Kích thước**: 5,110 bệnh nhân × 12 thuộc tính
@@ -17,7 +13,7 @@ Dự án **Data Mining hoàn chỉnh** để dự đoán nguy cơ đột quỵ (
 
 ---
 
-## �📁 **Project Structure**
+## Project Structure
 
 ```
 heart-stroke/
@@ -57,9 +53,9 @@ heart-stroke/
 
 ---
 
-## 🚀 **Quick Start**
+## Quick Start
 
-### 1️⃣ Environment Setup
+### Environment Setup
 
 **Windows (PowerShell):**
 
@@ -93,7 +89,7 @@ pip install -U pip
 pip install -r requirements.txt
 ```
 
-### 2️⃣ Verify Installation
+### Verify Installation
 
 ```powershell
 # Check Python version (cần >= 3.9)
@@ -105,9 +101,9 @@ pip list | Select-String "pandas|numpy|scikit-learn"
 
 ---
 
-## 📋 **Complete Workflow**
+## Complete Workflow
 
-### **Step 1: Exploratory Data Analysis (EDA)**
+### Step 1: Exploratory Data Analysis (EDA)
 
 Phân tích và hiểu dataset trước khi xử lý:
 
@@ -117,12 +113,12 @@ python eda_analysis.py
 
 **Outputs:**
 
-- ✅ Thống kê mô tả dataset
-- ✅ Phân tích class imbalance (4.9% stroke)
-- ✅ Distributions của numeric features
-- ✅ Correlation analysis
-- ✅ Age group analysis
-- ✅ Visualizations: `eda/*.png`
+- Thống kê mô tả dataset
+- Phân tích class imbalance (4.9% stroke)
+- Distributions của numeric features
+- Correlation analysis
+- Age group analysis
+- Visualizations: `eda/*.png`
 
 **Key Insights:**
 
@@ -133,7 +129,7 @@ python eda_analysis.py
 
 ---
 
-### **Step 2: Data Preprocessing**
+### Step 2: Data Preprocessing
 
 Tiền xử lý dữ liệu với pipeline hoàn chỉnh:
 
@@ -194,7 +190,7 @@ data-pre/
 
 ---
 
-### **Step 3: Feature Selection**
+### Step 3: Feature Selection
 
 Tìm features quan trọng nhất với 4 phương pháp:
 
@@ -217,9 +213,9 @@ python feature_selection.py
 
 **Top 8 Features:**
 
-1. 🥇 **age** - Tuổi (quan trọng nhất!)
-2. 🥈 **avg_glucose_level** - Mức glucose
-3. 🥉 **bmi** - Chỉ số BMI
+1. **age** - Tuổi (quan trọng nhất!)
+2. **avg_glucose_level** - Mức glucose
+3. **bmi** - Chỉ số BMI
 4. **hypertension** - Tăng huyết áp
 5. **heart_disease** - Bệnh tim
 6. **ever_married_Yes** - Đã kết hôn
@@ -240,9 +236,9 @@ feature/
 
 ---
 
-### **Step 4: Model Training**
+### Step 4: Model Training
 
-#### **A. Baseline Model**
+#### A. Baseline Model
 
 Quick baseline với Logistic Regression:
 
@@ -277,7 +273,7 @@ jupyter notebook svm-and-knn.ipynb
 
 ---
 
-### **Step 5: Results Consolidation**
+### Step 5: Results Consolidation
 
 Tổng hợp và so sánh kết quả từ tất cả models:
 
@@ -287,11 +283,11 @@ python model_consolidation.py
 
 **Features:**
 
-- ✅ Tổng hợp metrics từ nhiều models
-- ✅ So sánh performance (Accuracy, F1, Precision, Recall)
-- ✅ Visualizations (bar charts, heatmaps, scatter plots)
-- ✅ Detailed report generation
-- ✅ Export results to JSON
+- Tổng hợp metrics từ nhiều models
+- So sánh performance (Accuracy, F1, Precision, Recall)
+- Visualizations (bar charts, heatmaps, scatter plots)
+- Detailed report generation
+- Export results to JSON
 
 **Outputs:**
 
@@ -303,7 +299,7 @@ model_results_consolidated.json
 
 ---
 
-## 📄 Step 6: Generate Academic Report (LaTeX)
+## Step 6: Generate Academic Report (LaTeX)
 
 ### Report Structure
 
@@ -389,7 +385,7 @@ Remove-Item *.aux, *.log, *.toc, *.out
 
 ---
 
-## 📊 Dataset Information
+## Dataset Information
 
 | Column              | Type    | Description               | Example Values                                           |
 | ------------------- | ------- | ------------------------- | -------------------------------------------------------- |
@@ -447,7 +443,7 @@ categorical_cols = ["gender", "ever_married", "work_type",
 
 ---
 
-## 🔍 **Key Technical Decisions**
+## Key Technical Decisions
 
 ### 1. Class Imbalance Handling
 
@@ -455,20 +451,20 @@ categorical_cols = ["gender", "ever_married", "work_type",
 
 **Solutions:**
 
-- ✅ **SMOTE** oversampling (chỉ trên training set)
-- ✅ **class_weight='balanced'** trong models
-- ✅ **Stratified sampling** trong train/test split
-- ✅ **Metrics focus**: F1-Score, Precision, Recall (không chỉ Accuracy)
+- **SMOTE** oversampling (chỉ trên training set)
+- **class_weight='balanced'** trong models
+- **Stratified sampling** trong train/test split
+- **Metrics focus**: F1-Score, Precision, Recall (không chỉ Accuracy)
 
 ### 2. Data Leakage Prevention
 
 ```python
-# ✅ CORRECT: Fit on train only
+# CORRECT: Fit on train only
 preprocessor.fit(X_train)
 X_train_transformed = preprocessor.transform(X_train)
 X_test_transformed = preprocessor.transform(X_test)
 
-# ❌ WRONG: Fit on all data
+# WRONG: Fit on all data
 preprocessor.fit(X)  # Information leakage!
 ```
 
@@ -492,15 +488,15 @@ Model Training
 
 ---
 
-## 📈 **Performance Metrics**
+## Performance Metrics
 
 ### Priority Metrics (for imbalanced data)
 
-1. **F1-Score** ⭐⭐⭐ - Harmonic mean of Precision & Recall
-2. **Precision** ⭐⭐⭐ - Tỷ lệ dự đoán đúng trong các positive predictions
-3. **Recall** ⭐⭐⭐ - Tỷ lệ tìm được trong các positive cases
-4. **ROC-AUC** ⭐⭐ - Area under ROC curve
-5. **Accuracy** ⭐ - Chỉ dùng để tham khảo (misleading với imbalanced data)
+1. **F1-Score** - Harmonic mean of Precision & Recall
+2. **Precision** - Tỷ lệ dự đoán đúng trong các positive predictions
+3. **Recall** - Tỷ lệ tìm được trong các positive cases
+4. **ROC-AUC** - Area under ROC curve
+5. **Accuracy** - Chỉ dùng để tham khảo (misleading với imbalanced data)
 
 ### Why not Accuracy?
 
@@ -516,7 +512,7 @@ Example với dataset:
 
 ---
 
-## 🛠️ **Development Tools**
+## Development Tools
 
 ### Required Dependencies
 
@@ -553,7 +549,7 @@ pip install pylint
 
 ---
 
-## 📚 **Documentation**
+## Documentation
 
 - **README.md** - Project overview và quick start (this file)
 - **REPORT.md** - Detailed analysis report với findings
@@ -562,7 +558,7 @@ pip install pylint
 
 ---
 
-## 🤝 **Team Collaboration**
+## Team Collaboration
 
 ### Branch Strategy
 
@@ -597,7 +593,7 @@ consolidator.save_results_to_json()
 
 ---
 
-## 🎯 **Common Issues & Solutions**
+## Common Issues & Solutions
 
 ### Issue 1: Import Error
 
@@ -649,23 +645,23 @@ sm = SMOTE(sampling_strategy=0.5)  # Instead of 1.0
 
 ---
 
-## 📝 **To-Do List**
+## To-Do List
 
-- [x] Dataset exploration & EDA
-- [x] Preprocessing pipeline
-- [x] Feature selection
-- [x] Train/test split với stratification
-- [x] SMOTE implementation
-- [x] Baseline model (Logistic Regression)
-- [ ] Advanced models (SVM, KNN, RF)
-- [ ] Hyperparameter tuning
-- [ ] Cross-validation
-- [ ] Ensemble methods
-- [ ] Final report writing
+- Dataset exploration & EDA (completed)
+- Preprocessing pipeline (completed)
+- Feature selection (completed)
+- Train/test split với stratification (completed)
+- SMOTE implementation (completed)
+- Baseline model - Logistic Regression (completed)
+- Advanced models - SVM, KNN, RF (in progress)
+- Hyperparameter tuning (planned)
+- Cross-validation (planned)
+- Ensemble methods (planned)
+- Final report writing (planned)
 
 ---
 
-## 📖 **References**
+## References
 
 - [Kaggle Dataset](https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset)
 - [SMOTE Paper](https://arxiv.org/abs/1106.1813)
@@ -674,7 +670,7 @@ sm = SMOTE(sampling_strategy=0.5)  # Instead of 1.0
 
 ---
 
-## 👥 **Contributors**
+## Contributors
 
 - **Member A** - Logistic Regression & Random Forest
 - **Member B** - SVM & KNN
@@ -682,23 +678,19 @@ sm = SMOTE(sampling_strategy=0.5)  # Instead of 1.0
 
 ---
 
-## 🙏 **Acknowledgments**
+## Acknowledgments
 
 - Dataset: Kaggle Healthcare Stroke Dataset
 - Framework: Scikit-learn, Pandas, NumPy
 - Inspiration: Data Mining coursework HK251
-
----
-
-**Happy Coding! 🚀**
-binary_cols = ["hypertension", "heart_disease"]
-categorical_cols = ["gender", "ever_married", "work_type", "Residence_type", "smoking_status"]
+  binary_cols = ["hypertension", "heart_disease"]
+  categorical_cols = ["gender", "ever_married", "work_type", "Residence_type", "smoking_status"]
 
 ````
 
 ---
 
-## 🔍 Key Insights
+## Key Insights
 
 ### Top Risk Factors (từ Feature Selection):
 
@@ -716,7 +708,7 @@ categorical_cols = ["gender", "ever_married", "work_type", "Residence_type", "sm
 
 ---
 
-## 🛠️ Advanced Usage
+## Advanced Usage
 
 ### Custom Preprocessing
 
@@ -741,7 +733,7 @@ consolidator.visualize_results()
 
 ---
 
-## 📚 Dependencies
+## Dependencies
 
 **Core ML Stack:**
 
@@ -760,7 +752,7 @@ consolidator.visualize_results()
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 - **Detailed Report**: Xem `REPORT_TEMPLATE.md`
 - **AI Guidelines**: `.github/copilot-instructions.md`
@@ -768,15 +760,15 @@ consolidator.visualize_results()
 
 ---
 
-## 🏆 Project Highlights
+## Project Highlights
 
-- ✅ **Reproducible Pipeline**: Seed-controlled, artifact-based
-- ✅ **Class Imbalance Handling**: SMOTE + Stratified sampling
-- ✅ **Multi-method Feature Selection**: 4 different approaches
-- ✅ **Comprehensive EDA**: Statistical + Visual analysis
-- ✅ **Team Collaboration**: Results consolidation framework
-- ✅ **Production Ready**: Error handling, Vietnamese docs
+- **Reproducible Pipeline**: Seed-controlled, artifact-based
+- **Class Imbalance Handling**: SMOTE + Stratified sampling
+- **Multi-method Feature Selection**: 4 different approaches
+- **Comprehensive EDA**: Statistical + Visual analysis
+- **Team Collaboration**: Results consolidation framework
+- **Production Ready**: Error handling, Vietnamese docs
 
 ---
 
-**📝 Note**: Đây là pipeline hoàn chỉnh cho phân tích dữ liệu stroke prediction. Mỗi script có thể chạy độc lập hoặc theo workflow trên.
+**Note**: Đây là pipeline hoàn chỉnh cho phân tích dữ liệu stroke prediction. Mỗi script có thể chạy độc lập hoặc theo workflow trên.
